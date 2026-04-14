@@ -55,11 +55,24 @@ def scrape_hakolili():
             event_date = ""
 
             for i, line in enumerate(lines):
-                # 尋找【 タイトル 】下一行
-                if "タイトル" in line and i + 1 < len(lines):
-                    # 過濾掉只有括號的行
-                    if lines[i+1].strip():
-                        final_title = lines[i+1]
+                # 尋找【 タイトル 】
+                if "タイトル" in line:
+                    # 往下找第一行非空的文字作為標題
+                    curr = i + 1
+                    while curr < len(lines):
+                        if lines[curr].strip() and "【" not in lines[curr]:
+                            final_title = lines[curr].strip()
+                            break
+                        curr += 1
+                
+                # 尋找日期格式
+                if not event_date:
+                    date_match = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', line)
+                    if date_match:
+                        event_date = f"{date_match.group(1)}-{int(date_match.group(2)):02d}-{int(date_match.group(3)):02d}"
+
+            # 移除標題中多餘的空格或雜質
+            final_title = final_title.replace('\u3000', ' ').strip()
                 
                 # 尋找日期格式
                 if not event_date:
