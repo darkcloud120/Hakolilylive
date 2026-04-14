@@ -1,20 +1,23 @@
 [
     {
-        "title": "▼ 出演者",
+        "title": "04.022026『ハコリリ夏祭り2026』NEWSEVENT",
         "start": "2026-08-15",
         "url": "https://hakoniwalily.jp/news/post-105/",
-        "allDay": true
+        "allDay": true,
+        "className": "fc-event-auto"
     },
     {
-        "title": "▼ 出演者",
+        "title": "04.022026Hanon 3rdワンマンライブ『ブルームーン』NEWSEVENT",
         "start": "2026-06-28",
         "url": "https://hakoniwalily.jp/news/post-104/",
-        "allDay": true
+        "allDay": true,
+        "className": "fc-event-auto"
     },
     {
-        "title": "▼ 出演者",
+        "title": "04.022026Kotoha 2ndワンマンライブ『Re:CONNECT』NEWSEVENT",
         "start": "2026-06-13",
         "url": "https://hakoniwalily.jp/news/post-103/",
-        "allDay": true
+        "allDay": true,
+        "className": "fc-event-auto"
     }
 ]
