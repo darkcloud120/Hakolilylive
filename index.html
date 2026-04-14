@@ -7,55 +7,59 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html, body { margin: 0; padding: 0; height: 100%; background: #fffafb; }
-        #calendar-container { height: calc(100vh - 80px); padding: 20px; box-sizing: border-box; }
-        .fc-event-auto { background-color: #ff69b4 !important; border: none !important; font-size: 0.9em; padding: 2px; }
-        .fc-event-manual { background-color: #6495ED !important; border: none !important; }
-        .fc-toolbar-title { font-size: 1.5em !important; font-weight: bold; color: #db2777; }
-        /* 抽屜樣式 */
-        #tool-drawer { transition: transform 0.3s ease-in-out; transform: translateY(100%); }
+        html, body { margin: 0; padding: 0; height: 100%; background: #fffafb; overflow: hidden; }
+        #calendar-container { height: calc(100vh - 64px); padding: 15px; box-sizing: border-box; }
+        .fc-event { cursor: pointer !important; background-color: #ff69b4 !important; border: none !important; font-size: 0.85em; padding: 2px 4px; border-radius: 4px; }
+        .fc-toolbar-title { font-size: 1.4em !important; font-weight: bold; color: #db2777; }
+        #tool-drawer { transition: transform 0.3s; transform: translateY(100%); }
         #tool-drawer.open { transform: translateY(0); }
+        .modal-overlay { background: rgba(0,0,0,0.5); display: none; }
+        .modal-overlay.active { display: flex; }
     </style>
 </head>
-<body class="font-sans overflow-hidden">
+<body class="font-sans">
 
     <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-pink-100">
         <h1 class="text-xl font-black text-pink-600 tracking-tighter">ハコリリ 非官方行事曆</h1>
-        <button onclick="toggleDrawer()" class="bg-pink-50 text-pink-600 px-4 py-1.5 rounded-full text-sm font-medium border border-pink-200 hover:bg-pink-100">
-            ➕ 手動新增
-        </button>
+        <button onclick="toggleDrawer()" class="text-xs bg-pink-50 text-pink-400 px-3 py-1 rounded-full border border-pink-100">管理</button>
     </header>
 
     <div id="calendar-container">
-        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg border border-pink-50 p-4"></div>
+        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg border border-pink-50 p-2"></div>
     </div>
 
-    <div id="tool-drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t border-pink-200 shadow-2xl p-6 z-50">
-        <div class="max-w-3xl mx-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-gray-700">產生 manual_events.json 代碼</h3>
-                <button onclick="toggleDrawer()" class="text-gray-400 hover:text-gray-600">✕ 關閉</button>
+    <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 class="text-pink-600 font-bold mb-2">活動詳情</h3>
+            <p id="modal-title" class="text-gray-800 font-medium text-lg leading-relaxed mb-4"></p>
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-gray-500 font-bold">關閉</button>
+                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-2 rounded-lg text-white text-center font-bold">查看官網</a>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <input type="text" id="m_t" placeholder="活動名稱" class="flex-1 border p-2 rounded-lg outline-none focus:border-pink-400">
-                <input type="date" id="m_d" class="border p-2 rounded-lg outline-none">
-                <button onclick="gen()" class="bg-pink-500 text-white px-6 py-2 rounded-lg font-bold">生成代碼</button>
+        </div>
+    </div>
+
+    <div id="tool-drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t border-pink-200 p-6 z-50">
+        <div class="max-w-2xl mx-auto">
+            <div class="flex justify-between mb-4"><h3 class="font-bold">手動新增</h3><button onclick="toggleDrawer()">✕</button></div>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="mt" placeholder="名稱" class="border p-2 rounded flex-1">
+                <input type="date" id="md" class="border p-2 rounded">
+                <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded">生成</button>
             </div>
-            <textarea id="m_o" class="hidden w-full mt-4 bg-gray-50 p-2 text-xs font-mono border rounded h-20" readonly></textarea>
+            <textarea id="mo" class="w-full h-20 bg-gray-50 p-2 text-xs font-mono hidden" readonly></textarea>
         </div>
     </div>
 
     <script>
         function toggleDrawer() { document.getElementById('tool-drawer').classList.toggle('open'); }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
         
         function gen() {
-            const title = document.getElementById('m_t').value;
-            const date = document.getElementById('m_d').value;
-            if(!title || !date) return alert("請完整輸入");
-            const data = [{ "title": "⭐ " + title, "start": date, "allDay": true, "className": "fc-event-manual" }];
-            const out = document.getElementById('m_o');
-            out.value = JSON.stringify(data, null, 2);
-            out.classList.remove('hidden');
+            const t = document.getElementById('mt').value, d = document.getElementById('md').value;
+            if(!t || !d) return;
+            document.getElementById('mo').value = JSON.stringify([{ "title": "⭐ "+t, "start": d, "description": t }], null, 2);
+            document.getElementById('mo').classList.remove('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -69,7 +73,11 @@
                     { url: 'manual_events.json?v=' + Date.now() }
                 ],
                 eventClick: function(info) {
-                    if (info.event.url) { window.open(info.event.url, '_blank'); info.jsEvent.preventDefault(); }
+                    info.jsEvent.preventDefault();
+                    // 點擊後不直接跑連結，改跳彈窗
+                    document.getElementById('modal-title').innerText = info.event.extendedProps.description || info.event.title;
+                    document.getElementById('modal-link').href = info.event.url || "#";
+                    document.getElementById('modal').classList.add('active');
                 }
             });
             calendar.render();
