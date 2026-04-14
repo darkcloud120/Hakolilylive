@@ -2,20 +2,23 @@ name: Update Calendar Data
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天執行一次
-  workflow_dispatch: # 允許手動觸發
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write # 重要：允許 GitHub Action 修改你的檔案
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 升級到 v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 升級到 v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -30,3 +33,4 @@ jobs:
           git config --global user.name "GitHub Action"
           git add events.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "自動更新活動資料" && git push)
+
