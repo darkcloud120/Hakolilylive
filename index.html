@@ -8,11 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body { margin: 0; padding: 0; height: 100%; background: #fffafb; overflow: hidden; }
-        #calendar-container { height: calc(100vh - 64px); padding: 15px; box-sizing: border-box; }
-        .fc-event { cursor: pointer !important; background-color: #ff69b4 !important; border: none !important; font-size: 0.85em; padding: 2px 4px; border-radius: 4px; }
-        .fc-toolbar-title { font-size: 1.4em !important; font-weight: bold; color: #db2777; }
-        #tool-drawer { transition: transform 0.3s; transform: translateY(100%); }
-        #tool-drawer.open { transform: translateY(0); }
+        #calendar-container { height: calc(100vh - 64px); padding: 10px; box-sizing: border-box; }
+        .fc-event { cursor: pointer !important; background-color: #ff69b4 !important; border: none !important; padding: 2px 4px; }
+        .fc-toolbar-title { font-size: 1.2em !important; font-weight: bold; color: #db2777; }
+        /* 列表視圖美化 */
+        .fc-list-event-title { font-weight: bold; color: #333; }
+        .fc-list-day-side-text { color: #ff69b4; }
         .modal-overlay { background: rgba(0,0,0,0.5); display: none; }
         .modal-overlay.active { display: flex; }
     </style>
@@ -21,60 +22,66 @@
 
     <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-pink-100">
         <h1 class="text-xl font-black text-pink-600 tracking-tighter">ハコリリ 非官方行事曆</h1>
-        <button onclick="toggleDrawer()" class="text-xs bg-pink-50 text-pink-400 px-3 py-1 rounded-full border border-pink-100">管理</button>
+        <div class="flex gap-2">
+            <button onclick="toggleDrawer()" class="text-[10px] text-gray-300">Admin</button>
+        </div>
     </header>
 
     <div id="calendar-container">
-        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg border border-pink-50 p-2"></div>
+        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg border border-pink-50"></div>
     </div>
 
     <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="text-pink-600 font-bold mb-2">活動詳情</h3>
-            <p id="modal-title" class="text-gray-800 font-medium text-lg leading-relaxed mb-4"></p>
+            <h3 class="text-pink-600 font-bold mb-2">完整活動名稱</h3>
+            <p id="modal-title" class="text-gray-800 font-medium text-base leading-relaxed mb-6"></p>
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-gray-500 font-bold">關閉</button>
-                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-2 rounded-lg text-white text-center font-bold">查看官網</a>
+                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-500 font-bold">關閉</button>
+                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-3 rounded-xl text-white text-center font-bold">查看詳情</a>
             </div>
         </div>
     </div>
 
-    <div id="tool-drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t border-pink-200 p-6 z-50">
-        <div class="max-w-2xl mx-auto">
-            <div class="flex justify-between mb-4"><h3 class="font-bold">手動新增</h3><button onclick="toggleDrawer()">✕</button></div>
-            <div class="flex gap-2 mb-4">
-                <input type="text" id="mt" placeholder="名稱" class="border p-2 rounded flex-1">
-                <input type="date" id="md" class="border p-2 rounded">
-                <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded">生成</button>
-            </div>
-            <textarea id="mo" class="w-full h-20 bg-gray-50 p-2 text-xs font-mono hidden" readonly></textarea>
+    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform z-50">
+        <div class="max-w-md mx-auto flex gap-2">
+            <input type="text" id="mt" placeholder="名稱" class="border p-2 flex-1 rounded">
+            <input type="date" id="md" class="border p-2 rounded">
+            <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded">生成</button>
         </div>
+        <textarea id="mo" class="w-full mt-2 hidden text-[10px] font-mono border p-2 h-16"></textarea>
     </div>
 
     <script>
-        function toggleDrawer() { document.getElementById('tool-drawer').classList.toggle('open'); }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
-        
         function gen() {
             const t = document.getElementById('mt').value, d = document.getElementById('md').value;
-            if(!t || !d) return;
-            document.getElementById('mo').value = JSON.stringify([{ "title": "⭐ "+t, "start": d, "description": t }], null, 2);
+            const res = [{ "title": "⭐ "+t, "start": d, "description": t }];
+            document.getElementById('mo').value = JSON.stringify(res, null, 2);
             document.getElementById('mo').classList.remove('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                // 增加 listYear 視圖，顯示一年內所有活動
                 initialView: 'dayGridMonth',
                 locale: 'zh-tw',
                 height: '100%',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                headerToolbar: { 
+                    left: 'prev,next', 
+                    center: 'title', 
+                    right: 'dayGridMonth,listYear' // 將 today 換成切換按鈕
+                },
+                buttonText: {
+                    month: '日曆模式',
+                    list: '活動清單'
+                },
                 eventSources: [
                     { url: 'events.json?v=' + Date.now() },
                     { url: 'manual_events.json?v=' + Date.now() }
                 ],
                 eventClick: function(info) {
                     info.jsEvent.preventDefault();
-                    // 點擊後不直接跑連結，改跳彈窗
                     document.getElementById('modal-title').innerText = info.event.extendedProps.description || info.event.title;
                     document.getElementById('modal-link').href = info.event.url || "#";
                     document.getElementById('modal').classList.add('active');
