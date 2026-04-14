@@ -21,6 +21,9 @@ def clean_event_title(text):
     text = re.sub(r'^\d{1,2}[\.\/\-]\d{1,2}\s*', '', text)
     text = re.sub(r'\s*\d{1,2}[\.\/\-]\d{1,2}$', '', text)
     
+    # 4. 移除所有剩餘的連續 4 位以上數字 (通常是年份)
+    text = re.sub(r'\d{4}', '', text)
+    
     # 5. 清理多餘空白與特殊符號
     text = text.strip()
     return text
