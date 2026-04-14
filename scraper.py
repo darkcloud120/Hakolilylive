@@ -1,6 +1,8 @@
+
 import requests
 from bs4 import BeautifulSoup
 import json
+import re
 
 def scrape_hakolili():
     url = "https://hakoniwalily.jp/news/"
@@ -10,68 +12,50 @@ def scrape_hakolili():
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'html.parser')
     
-    # 這裡的選擇器改為抓取所有新聞項目
+    # 1. 抓取新聞列表
     articles = soup.select('ul.p-news-list li') 
-    new_events = []
+    events = []
 
     for item in articles:
         title_el = item.select_one('.p-news-list__item-title')
         if not title_el: continue
         title = title_el.get_text(strip=True)
         
-        # 放寬關鍵字
-        keywords = ["開催決定", "LIVE", "イベント", "出演"]
-        if any(k in title for k in keywords):
+        # 只過濾有「開催決定」的新聞
+        if "開催決定" in title:
             link_el = item.select_one('a')
-            link = link_el['href'] if link_el else "#"
-            full_link = link if link.startswith('http') else f"https://hakoniwalily.jp{link}"
+            full_link = link_el['href'] if link_el['href'].startswith('http') else f"https://hakoniwalily.jp{link_el['href']}"
             
-            date_el = item.select_one('.p-news-list__item-date')
-            date_str = date_el.get_text(strip=True).replace('.', '-') if date_el else ""
-            
-            new_events.append({
+            # --- 關鍵步驟：進入內文頁面抓取真實日期 ---
+            inner_res = requests.get(full_link, headers=headers)
+            inner_res.encoding = 'utf-8'
+            inner_soup = BeautifulSoup(inner_res.text, 'html.parser')
+            content_text = inner_soup.get_text()
+
+            # 使用正規表達式尋找日期格式如：2026年6月28日 或 2026.06.28
+            date_match = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', content_text)
+            if not date_match:
+                date_match = re.search(r'(\d{4})\.(\d{1,2})\.(\d{1,2})', content_text)
+
+            if date_match:
+                # 格式化為 YYYY-MM-DD
+                event_date = f"{date_match.group(1)}-{int(date_match.group(2)):02d}-{int(date_match.group(3)):02d}"
+            else:
+                # 如果內文沒找到，才勉強用列表頁的發布日期
+                list_date_el = item.select_one('.p-news-list__item-date')
+                event_date = list_date_el.get_text(strip=True).replace('.', '-') if list_date_el else ""
+
+            events.append({
                 "title": title,
-                "start": date_str,
+                "start": event_date,
                 "url": full_link,
-                "allDay": True,
-                "source": "auto" # 標記為自動抓取
+                "allDay": True
             })
 
-    # --- 讀取舊的手動資料並合併 ---
-    try:
-        with open('events.json', 'r', encoding='utf-8') as f:
-            old_data = json.load(f)
-            # 保留手動輸入的資料 (source == "manual")
-            manual_events = [e for e in old_data if e.get("source") == "manual"]
-    except:
-        manual_events = []
-
-    # 合併後存檔
-    final_events = new_events + manual_events
+    # 存檔
     with open('events.json', 'w', encoding='utf-8') as f:
-        json.dump(final_events, f, ensure_ascii=False, indent=4)
+        json.dump(events, f, ensure_ascii=False, indent=4)
+    print(f"成功更新！共抓取 {len(events)} 筆活動。")
 
 if __name__ == "__main__":
     scrape_hakolili()
-
-var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'zh-tw',
-    // 同時讀取兩個 JSON 來源
-    eventSources: [
-        {
-            url: 'events.json', // 自動抓取的
-            color: '#ff69b4'
-        },
-        {
-            url: 'manual_events.json', // 你手動編輯的
-            color: '#6495ED'
-        }
-    ],
-    eventClick: function(info) {
-        info.jsEvent.preventDefault();
-        if (info.event.url && info.event.url !== "#") {
-            window.open(info.event.url, "_blank");
-        }
-    }
-});
