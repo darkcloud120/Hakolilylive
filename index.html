@@ -3,86 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ハコリリ活動行事曆</title>
+    <title>ハコリリ 活動行事曆</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html, body { margin: 0; padding: 0; height: 100%; background: #06D76C; overflow: hidden; }
-        #calendar-container { height: calc(100vh - 64px); padding: 10px; box-sizing: border-box; }
-        .fc-event { cursor: pointer !important; background-color: #06D76C !important; border: none !important; }
-        .fc-toolbar-title { font-size: 1.2em !important; font-weight: bold; color: #06D76C; }
-        .modal-overlay { background: rgba(0,0,0,0.5); display: none; }
-        .modal-overlay.active { display: flex; }
+        /* 1. 全域樣式與自定義顏色 */
+        :root {
+            /* 定義亮藍綠色主題 (Hanon & Kotoha colors) */
+            --theme-primary: #00ced1; /* 亮藍綠色 / DarkTurquoise */
+            --theme-secondary: #e0ffff; /* 極淡藍色 / LightCyan */
+            --theme-bg: #f0fdfa; /* Tailwind cyan-50 */
+            --theme-text: #0e7490; /* Tailwind cyan-700 */
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: var(--theme-bg);
+            overflow: hidden; /* 防止雙滾動條 */
+        }
+
+        /* 2. FullCalendar 樣式客製化 (核心修改) */
+        
+        /* 日曆主容器 */
+        #calendar-container {
+            height: calc(100vh - 64px); /* 扣除 Header 高度 */
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* 調整 FullCalendar 內部佈局 */
+        .fc {
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #cffafe; /* Tailwind cyan-100 */
+        }
+
+        /* 頂部工具列 */
+        .fc-header-toolbar {
+            padding: 8px !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* 標題 (年月) */
+        .fc-toolbar-title {
+            font-size: 1.25em !important;
+            font-weight: bold;
+            color: var(--theme-text) !important;
+        }
+
+        /* 按鈕主樣式 */
+        .fc-button {
+            background-color: white !important;
+            border: 1px solid #a5f3fc !important; /* cyan-200 */
+            color: var(--theme-text) !important;
+            font-size: 0.9em !important;
+            padding: 4px 8px !important;
+            text-transform: capitalize !important;
+        }
+
+        /* 按鈕 Hover 狀態 */
+        .fc-button:hover {
+            background-color: var(--theme-secondary) !important;
+            border-color: #67e8f9 !important; /* cyan-300 */
+        }
+
+        /* 按鈕 Active/Selected 狀態 */
+        .fc-button-active {
+            background-color: var(--theme-primary) !important;
+            border-color: var(--theme-primary) !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+        /* 禁用狀態的按鈕 */
+        .fc-button:disabled {
+            opacity: 0.5;
+        }
+
+        /* 隱除 prev/next 按鈕的預設陰影 */
+        .fc-button-primary:not(:disabled):active:focus, 
+        .fc-button-primary:not(:disabled).fc-button-active:focus {
+            box-shadow: none !important;
+        }
+
+        /* 活動項目樣式 (自動抓取) */
+        .fc-event {
+            cursor: pointer !important;
+            background-color: var(--theme-primary) !important; /* 亮藍綠色 */
+            border: none !important;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* 活動項目樣式 (手動新增 - 稍微深一點的藍綠色做區隔) */
+        .fc-event-manual {
+            background-color: #008b8b !important; /* DarkCyan */
+        }
+
+        /* 當前日期高亮 */
+        .fc-day-today {
+            background-color: var(--theme-secondary) !important; /* LightCyan */
+        }
+
+        /* 列表視圖 (List View) 客製化 */
+        .fc-list-event-title {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .fc-list-day-side-text {
+            color: var(--theme-text) !important;
+            font-weight: bold;
+        }
+
+        /* 3. Modal 詳情彈窗樣式 */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* 預設隱藏 */
+        }
+
+        .modal-overlay.active {
+            display: flex; /* 顯示 */
+        }
     </style>
 </head>
 <body class="font-sans">
 
-    <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-pink-100">
-        <h1 class="text-xl font-black text-pink-600 tracking-tighter">ハコリリ活動行事曆</h1>
-        <button onclick="toggleDrawer()" class="text-[10px] text-gray-200">-</button>
+    <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-cyan-100 relative z-10">
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#00CED1]"></span> <span class="w-3 h-3 rounded-full bg-[#98FB98]"></span> <h1 class="text-xl font-black text-cyan-700 tracking-tighter">ハコリリ 非官方行事曆</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleDrawer()" class="text-[10px] text-gray-200 hover:text-cyan-300 transition">Admin</button>
+        </div>
     </header>
 
     <div id="calendar-container">
-        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg"></div>
+        <div id="calendar"></div>
     </div>
 
-    <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-pink-100">
-            <h3 class="text-pink-600 font-bold mb-2 text-sm uppercase tracking-widest">Activity Detail</h3>
+    <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 transform scale-95 transition-transform duration-300 modal-content">
+            <h3 class="text-cyan-600 font-bold mb-2 text-sm uppercase tracking-widest">Activity Detail</h3>
             <p id="modal-title" class="text-gray-800 font-bold text-lg leading-relaxed mb-6"></p>
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-400 font-bold">關閉</button>
-                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-3 rounded-xl text-white text-center font-bold shadow-lg shadow-pink-200">官網</a>
+                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-400 font-bold hover:bg-gray-200 transition">關閉</button>
+                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-cyan-500 py-3 rounded-xl text-white text-center font-bold shadow-lg shadow-cyan-200 hover:bg-cyan-600 transition">開啟官網</a>
             </div>
         </div>
     </div>
 
-    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform z-50">
-        <div class="max-w-md mx-auto flex gap-2">
-            <input type="text" id="mt" placeholder="活動標題" class="border p-2 flex-1 rounded text-sm">
-            <input type="date" id="md" class="border p-2 rounded text-sm">
-            <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded text-sm">生成</button>
+    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t border-cyan-200 p-4 transform translate-y-full transition-transform duration-300 z-50 shadow-2xl">
+        <div class="max-w-md mx-auto flex gap-2 mb-2">
+            <input type="text" id="mt" placeholder="活動標題" class="border border-cyan-200 p-2 flex-1 rounded-lg text-sm outline-none focus:ring-2 focus:ring-cyan-200">
+            <input type="date" id="md" class="border border-cyan-200 p-2 rounded-lg text-sm outline-none focus:ring-2 focus:ring-cyan-200 text-cyan-700">
+            <button onclick="genJSON()" class="bg-cyan-500 text-white px-4 rounded-lg text-sm font-bold hover:bg-cyan-600 transition">生成</button>
         </div>
-        <textarea id="mo" class="w-full mt-2 hidden text-[10px] font-mono border p-2 h-16"></textarea>
+        <p class="text-[10px] text-gray-400 text-center mb-2">生成代碼後，請手動貼上至 GitHub 的 manual_events.json</p>
+        <textarea id="mo" class="w-full mt-2 hidden text-[10px] font-mono border border-cyan-100 p-2 h-16 rounded bg-gray-50 text-cyan-800" readonly></textarea>
     </div>
 
     <script>
-        function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
-        function closeModal() { document.getElementById('modal').classList.remove('active'); }
-        function gen() {
-            const t = document.getElementById('mt').value, d = document.getElementById('md').value;
-            const res = [{ "title": "⭐ "+t, "start": d, "description": t }];
-            document.getElementById('mo').value = JSON.stringify(res, null, 2);
-            document.getElementById('mo').classList.remove('hidden');
+        // --- 介面互動邏輯 ---
+        
+        // 切換 Admin 抽屜
+        function toggleDrawer() {
+            document.getElementById('drawer').classList.toggle('translate-y-0');
         }
 
+        // 關閉詳情彈窗
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('active');
+            }, 200); // 等待動畫完成
+        }
+
+        // 開啟詳情彈窗
+        function openModal(title, url) {
+            const modal = document.getElementById('modal');
+            const content = modal.querySelector('.modal-content');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-link').href = url || "#";
+            
+            modal.classList.add('active');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10); // 微小延遲以觸發 CSS 動畫
+        }
+
+        // 生成手動新增的 JSON 代碼
+        function genJSON() {
+            const t = document.getElementById('mt').value;
+            const d = document.getElementById('md').value;
+            if(!t || !d) return alert("請完整填寫標題與日期");
+            
+            // 這裡設定 className 為 fc-event-manual，以套用不同的顏色
+            const res = [{ "title": "⭐ "+t, "start": d, "description": t, "className": "fc-event-manual" }];
+            const out = document.getElementById('mo');
+            out.value = JSON.stringify(res, null, 2);
+            out.classList.remove('hidden');
+        }
+
+        // --- FullCalendar 初始化 ---
         document.addEventListener('DOMContentLoaded', function() {
-            var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                initialView: 'dayGridMonth',
-                locale: 'zh-tw',
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth', // 預設為日曆模式
+                locale: 'zh-tw', // 設定繁體中文
                 height: '100%',
+                
+                // 工具列配置
                 headerToolbar: { 
-                    left: 'prev,next', 
+                    left: 'prev,next', // 移除 today 按鈕
                     center: 'title', 
-                    right: 'dayGridMonth,listYear' // 只有日曆與清單
+                    right: 'dayGridMonth,listYear' // 切換按鈕
                 },
-                buttonText: { month: '日曆', list: '清單' },
-                // 讓清單模式顯示更寬廣的範圍（顯示一年）
+                
+                // 按鈕文字自定義
+                buttonText: {
+                    month: '日曆',
+                    list: '清單'
+                },
+
+                // 列表視圖配置：顯示一年內所有活動
                 views: {
-                    listYear: { buttonText: '清單', duration: { years: 1 } }
+                    listYear: { 
+                        buttonText: '清單', 
+                        duration: { years: 1 } 
+                    }
                 },
+
+                // 資料來源 (自動 + 手動)
                 eventSources: [
-                    { url: 'events.json?v=' + Date.now() },
-                    { url: 'manual_events.json?v=' + Date.now() }
+                    { 
+                        url: 'events.json?v=' + Date.now(), // 加上時間戳防止快取
+                    },
+                    { 
+                        url: 'manual_events.json?v=' + Date.now(),
+                    }
                 ],
+
+                // 點擊活動事件
                 eventClick: function(info) {
+                    // 阻止預設行為 (不直接跳轉網址)
                     info.jsEvent.preventDefault();
-                    document.getElementById('modal-title').innerText = info.event.extendedProps.description || info.event.title;
-                    document.getElementById('modal-link').href = info.event.url || "#";
-                    document.getElementById('modal').classList.add('active');
+                    
+                    // 獲取完整名稱 (爬蟲存放在 description 欄位)
+                    const fullTitle = info.event.extendedProps.description || info.event.title;
+                    const url = info.event.url;
+                    
+                    // 呼叫自定義的彈窗
+                    openModal(fullTitle, url);
                 }
             });
+            
             calendar.render();
+        });
+
+        // 點擊 Modal 外部背景關閉彈窗
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
         });
     </script>
 </body>
