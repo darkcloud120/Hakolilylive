@@ -63,6 +63,7 @@ def scrape_hakolili():
         with open('events.json', 'w', encoding='utf-8') as f:
             json.dump(events, f, ensure_ascii=False, indent=4)
             
+        print(events)
         print(f"完成！抓取到 {len(events)} 個活動。")
 
     except Exception as e:
