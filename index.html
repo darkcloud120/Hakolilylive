@@ -31,7 +31,7 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'zh-tw',
-                events: 'darkcloud120/events.json', // 讀取 GitHub 產生的 JSON
+                events: Hakoday/events.json', // 讀取 GitHub 產生的 JSON
                 eventClick: function(info) {
                     info.jsEvent.preventDefault();
                     if (info.event.url) {
