@@ -59,7 +59,6 @@
             color: white !important;
         }
 
-        /* 一般活動樣式 */
         .fc-event {
             cursor: pointer !important;
             background-color: var(--theme-primary) !important;
@@ -69,7 +68,6 @@
             font-size: 0.8em;
         }
 
-        /* 生日特別樣式 */
         .event-birthday {
             background-color: var(--birthday-gold) !important;
             animation: pulse 2s infinite;
@@ -105,7 +103,7 @@
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.444 4.834c-.812.358-1.683.6-2.597.71a4.532 4.532 0 001.988-2.503 9.042 9.042 0 01-2.87 1.096 4.524 4.524 0 00-7.705 4.122 12.83 12.83 0 01-9.317-4.722 4.521 4.521 0 001.4 6.034 4.504 4.504 0 01-2.048-.565v.057a4.522 4.522 0 003.625 4.43 4.528 4.528 0 01-2.04.077 4.526 4.526 0 004.225 3.14A9.073 9.073 0 010 18.39a12.793 12.793 0 006.926 2.03c8.311 0 12.855-6.885 12.855-12.854 0-.196-.004-.39-.013-.585a9.184 9.184 0 002.256-2.333z"/></svg>
                     <span>Twitter</span>
                 </a>
-                <a href="https://www.youtube.com/@Hanon_Kotoha" target="_blank" class="text-[11px] font-bold text-red-600 hover:opacity-70 flex items-center gap-1 transition">
+                <a href="https://www.youtube.com/@%E3%81%93%E3%81%A8%E3%81%AF%E3%81%AE%E3%81%9F%E3%81%93%E7%84%BC%E3%81%8D" target="_blank" class="text-[11px] font-bold text-red-600 hover:opacity-70 flex items-center gap-1 transition">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                     <span>YouTube</span>
                 </a>
@@ -126,6 +124,7 @@
             <p id="modal-title" class="text-gray-800 font-bold text-lg leading-relaxed mb-6"></p>
             <div class="flex flex-col gap-2">
                 <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:bg-cyan-600 transition">查看官網詳情</a>
+                
                 <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold hover:bg-cyan-50 transition flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
                     加入我的 Google 日曆
@@ -150,7 +149,6 @@
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
         
-        // 建立 Google 日曆連結
         function getGCalUrl(title, dateStr) {
             const date = dateStr.replace(/-/g, '');
             return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date}/${date}&details=${encodeURIComponent('來自 ハコリリ活動行事曆')}`;
@@ -159,14 +157,24 @@
         function openModal(event) {
             const title = event.extendedProps.description || event.title;
             const date = event.startStr;
+            const isBirthday = event.classNames.includes('event-birthday');
+            
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-link').href = event.url || "https://hakoniwalily.jp/news/";
+            
+            // 如果是生日，隱藏官網按鈕
+            const linkBtn = document.getElementById('modal-link');
+            if (isBirthday) {
+                linkBtn.classList.add('hidden');
+            } else {
+                linkBtn.classList.remove('hidden');
+                linkBtn.href = event.url || "https://hakoniwalily.jp/news/";
+            }
+            
             document.getElementById('btn-gcal').onclick = () => window.open(getGCalUrl(title, date), '_blank');
             document.getElementById('modal').classList.add('active');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 自動生成未來 5 年的生日
             const currentYear = new Date().getFullYear();
             const bdays = [];
             for(let i=0; i<5; i++){
@@ -181,7 +189,7 @@
                 displayEventTime: false,
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,listYear' },
                 buttonText: { month: '日曆', list: '清單' },
-                events: bdays, // 加入生日數據
+                events: bdays,
                 eventSources: [
                     { url: 'events.json?v=' + Date.now() },
                     { url: 'manual_events.json?v=' + Date.now() }
