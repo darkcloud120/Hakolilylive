@@ -9,11 +9,8 @@
     <style>
         html, body { margin: 0; padding: 0; height: 100%; background: #fffafb; overflow: hidden; }
         #calendar-container { height: calc(100vh - 64px); padding: 10px; box-sizing: border-box; }
-        .fc-event { cursor: pointer !important; background-color: #ff69b4 !important; border: none !important; padding: 2px 4px; }
+        .fc-event { cursor: pointer !important; background-color: #ff69b4 !important; border: none !important; }
         .fc-toolbar-title { font-size: 1.2em !important; font-weight: bold; color: #db2777; }
-        /* 列表視圖美化 */
-        .fc-list-event-title { font-weight: bold; color: #333; }
-        .fc-list-day-side-text { color: #ff69b4; }
         .modal-overlay { background: rgba(0,0,0,0.5); display: none; }
         .modal-overlay.active { display: flex; }
     </style>
@@ -22,31 +19,29 @@
 
     <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-pink-100">
         <h1 class="text-xl font-black text-pink-600 tracking-tighter">ハコリリ 非官方行事曆</h1>
-        <div class="flex gap-2">
-            <button onclick="toggleDrawer()" class="text-[10px] text-gray-300">Admin</button>
-        </div>
+        <button onclick="toggleDrawer()" class="text-[10px] text-gray-200">Admin</button>
     </header>
 
     <div id="calendar-container">
-        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg border border-pink-50"></div>
+        <div id="calendar" class="h-full bg-white rounded-xl shadow-lg"></div>
     </div>
 
     <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="text-pink-600 font-bold mb-2">完整活動名稱</h3>
-            <p id="modal-title" class="text-gray-800 font-medium text-base leading-relaxed mb-6"></p>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-pink-100">
+            <h3 class="text-pink-600 font-bold mb-2 text-sm uppercase tracking-widest">Activity Detail</h3>
+            <p id="modal-title" class="text-gray-800 font-bold text-lg leading-relaxed mb-6"></p>
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-500 font-bold">關閉</button>
-                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-3 rounded-xl text-white text-center font-bold">查看詳情</a>
+                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-400 font-bold">關閉</button>
+                <a id="modal-link" href="#" target="_blank" class="flex-1 bg-pink-500 py-3 rounded-xl text-white text-center font-bold shadow-lg shadow-pink-200">開啟官網</a>
             </div>
         </div>
     </div>
 
     <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform z-50">
         <div class="max-w-md mx-auto flex gap-2">
-            <input type="text" id="mt" placeholder="名稱" class="border p-2 flex-1 rounded">
-            <input type="date" id="md" class="border p-2 rounded">
-            <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded">生成</button>
+            <input type="text" id="mt" placeholder="活動標題" class="border p-2 flex-1 rounded text-sm">
+            <input type="date" id="md" class="border p-2 rounded text-sm">
+            <button onclick="gen()" class="bg-pink-500 text-white px-4 rounded text-sm">生成代碼</button>
         </div>
         <textarea id="mo" class="w-full mt-2 hidden text-[10px] font-mono border p-2 h-16"></textarea>
     </div>
@@ -63,18 +58,18 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                // 增加 listYear 視圖，顯示一年內所有活動
                 initialView: 'dayGridMonth',
                 locale: 'zh-tw',
                 height: '100%',
                 headerToolbar: { 
                     left: 'prev,next', 
                     center: 'title', 
-                    right: 'dayGridMonth,listYear' // 將 today 換成切換按鈕
+                    right: 'dayGridMonth,listYear' // 只有日曆與清單
                 },
-                buttonText: {
-                    month: '日曆模式',
-                    list: '活動清單'
+                buttonText: { month: '日曆', list: '清單' },
+                // 讓清單模式顯示更寬廣的範圍（顯示一年）
+                views: {
+                    listYear: { buttonText: '清單', duration: { years: 1 } }
                 },
                 eventSources: [
                     { url: 'events.json?v=' + Date.now() },
