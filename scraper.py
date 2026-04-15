@@ -5,50 +5,46 @@ import os
 import time
 
 def scrape_article_image(article_url):
-    """強化版：點進新聞內頁抓取真正的活動大圖"""
+    """深度掃描內頁，尋找所有可能的圖片來源"""
     try:
-        # 有禮貌的爬蟲，避免被官網封鎖
         time.sleep(1.5) 
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
         }
-        response = requests.get(article_url, headers=headers)
+        response = requests.get(article_url, headers=headers, timeout=15)
         soup = BeautifulSoup(response.text, "html.parser")
         
-        # 1. 優先找文章內部的第一張圖
-        # 針對 WP 常見的內文區塊進行搜尋
-        content_area = soup.select_one(".post-content") or \
-                       soup.select_one(".entry-content") or \
-                       soup.select_one("article")
+        # 1. 針對官網常見的 WordPress 區塊結構進行精確搜尋
+        # 依序尋找：文章內的第一個圖片、文章特色圖、或是任何在內容區的圖
+        img_target = soup.select_one(".post-content img") or \
+                     soup.select_one(".entry-content img") or \
+                     soup.select_one(".wp-block-image img") or \
+                     soup.select_one("article img")
         
-        if content_area:
-            imgs = content_area.find_all("img")
-            for img in imgs:
-                src = img.get("src") or img.get("data-src") # 有些圖會用懶加載
-                if src:
-                    # 過濾掉太小的圖片或特定關鍵字（如頭像、icon）
-                    if any(x in src.lower() for x in ["icon", "logo", "avatar", "sns"]):
-                        continue
-                    
-                    # 補全網址
-                    if src.startswith("/"):
-                        return "https://hakoniwalily.jp" + src
-                    return src
-
-        # 2. 如果內文沒圖，嘗試找主題圖 (Featured Image)
-        featured = soup.select_one(".post-thumbnail img") or soup.select_one(".wp-post-image")
-        if featured and featured.get("src"):
-            src = featured["src"]
-            return "https://hakoniwalily.jp" + src if src.startswith("/") else src
+        if img_target:
+            # 優先抓取可能存放真實網址的屬性 (處理懶加載)
+            src = img_target.get("data-lazy-src") or \
+                  img_target.get("data-src") or \
+                  img_target.get("src")
+            
+            if src:
+                # 排除小圖或裝飾圖
+                if any(x in src.lower() for x in ["icon", "logo", "avatar", "sns", "facebook", "twitter"]):
+                    return None
+                
+                # 轉換為絕對路徑
+                full_url = src if src.startswith("http") else "https://hakoniwalily.jp" + src
+                print(f"成功抓取圖片網址: {full_url}") # 讓 Actions 的 Log 看得到
+                return full_url
 
     except Exception as e:
-        print(f"抓取內頁圖片失敗 ({article_url}): {e}")
+        print(f"抓取內頁失敗: {e}")
     return None
 
 def scrape_hakoniwalily():
     url = "https://hakoniwalily.jp/news/"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
 
     try:
@@ -56,8 +52,7 @@ def scrape_hakoniwalily():
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, "html.parser")
         
-        # 修正：針對官網新聞列表的標籤選擇器
-        # 假設結構是 <article> 裡面的 <a>
+        # 抓取列表中的所有文章
         articles = soup.select("article")
         new_events = []
 
@@ -71,10 +66,12 @@ def scrape_hakoniwalily():
                 title_str = title_raw.get_text(strip=True)
                 link_url = link_raw["href"] if link_raw else "https://hakoniwalily.jp/news/"
 
-                # 只有當網址是官網內頁時才抓圖
+                # 初始化 image 欄位為 None
                 image_url = None
-                if "hakoniwalily.jp" in link_url and "/news/" in link_url:
-                    print(f"正在分析: {title_str}...")
+                
+                # 只在確實有連結且是新聞內頁時才去抓圖
+                if link_url and "hakoniwalily.jp" in link_url and link_url != "https://hakoniwalily.jp/news/":
+                    print(f"正在分析內頁圖片: {title_str}")
                     image_url = scrape_article_image(link_url)
 
                 new_events.append({
@@ -92,40 +89,42 @@ def scrape_hakoniwalily():
 
 def save_and_merge_events(new_events):
     file_name = 'events.json'
+    
+    # 讀取現有資料
     if os.path.exists(file_name):
         try:
             with open(file_name, 'r', encoding='utf-8') as f:
                 existing_events = json.load(f)
-        except: existing_events = []
-    else: existing_events = []
+        except:
+            existing_events = []
+    else:
+        existing_events = []
 
-    # 建立識別集
-    existing_ids = {f"{ev['title']}_{ev['start']}" for ev in existing_events}
+    # 建立現有資料的檢索字典
+    # 用標題 + 日期 當 Key
+    db = {f"{ev['title']}_{ev['start']}": ev for ev in existing_events}
 
-    added_count = 0
-    updated_count = 0
-    for event in new_events:
-        event_id = f"{event['title']}_{event['start']}"
-        if event_id not in existing_ids:
-            existing_events.append(event)
-            added_count += 1
+    for ne in new_events:
+        eid = f"{ne['title']}_{ne['start']}"
+        if eid not in db:
+            # 全新活動
+            existing_events.append(ne)
+            db[eid] = ne
         else:
-            # 💡 關鍵修正：如果舊活動沒圖片但新抓的有，就補上去
-            for ex_ev in existing_events:
-                if f"{ex_ev['title']}_{ex_ev['start']}" == event_id:
-                    if not ex_ev.get("image") and event.get("image"):
-                        ex_ev["image"] = event["image"]
-                        updated_count += 1
+            # 活動已存在，檢查是否需要補上圖片
+            if not db[eid].get("image") and ne.get("image"):
+                db[eid]["image"] = ne["image"]
+                print(f"已為舊活動補上圖片: {ne['title']}")
 
-    # 按日期降序排列
+    # 排序
     existing_events.sort(key=lambda x: x['start'], reverse=True)
 
     with open(file_name, 'w', encoding='utf-8') as f:
         json.dump(existing_events, f, ensure_ascii=False, indent=2)
     
-    print(f"任務完成！新增: {added_count}, 更新圖片: {updated_count}")
+    print(f"資料存檔完成，目前總數: {len(existing_events)}")
 
 if __name__ == "__main__":
-    latest_news = scrape_hakoniwalily()
-    if latest_news:
-        save_and_merge_events(latest_news)
+    latest = scrape_hakoniwalily()
+    if latest:
+        save_and_merge_events(latest)
