@@ -131,7 +131,7 @@
             <p id="modal-title" class="text-gray-800 font-bold text-lg leading-relaxed mb-6"></p>
             
             <div class="flex flex-col gap-2">
-                <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:bg-cyan-600 transition">查看官網詳情</a>
+                <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:bg-cyan-600 transition">查看活動詳情</a>
                 
                 <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold hover:bg-cyan-50 transition flex items-center justify-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
@@ -142,16 +142,18 @@
         </div>
     </div>
 
-    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform duration-300 z-[1100]">
+    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform duration-300 z-[1100] shadow-inner">
         <div class="max-w-md mx-auto">
             <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="text" id="mt" placeholder="標題" class="border p-2 rounded-lg text-sm col-span-2">
+                <input type="text" id="mt" placeholder="活動標題" class="border p-2 rounded-lg text-sm col-span-2 focus:border-cyan-400 outline-none">
                 <input type="date" id="ms" class="border p-2 rounded-lg text-sm" title="開始日期">
                 <input type="date" id="me" class="border p-2 rounded-lg text-sm" title="結束日期 (跨日才填)">
-                <input type="text" id="mi" placeholder="圖片網址 (選填)" class="border p-2 rounded-lg text-sm col-span-2">
-                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成 JSON</button>
+                <input type="text" id="mi" placeholder="海報圖片網址 (選填)" class="border p-2 rounded-lg text-sm col-span-2 focus:border-cyan-400 outline-none">
+                <input type="text" id="mu" placeholder="詳情連結網址 (推特/官網...)" class="border p-2 rounded-lg text-sm col-span-2 focus:border-cyan-400 outline-none">
+                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2 hover:bg-cyan-600 transition">生成手動活動 JSON</button>
             </div>
-            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-gray-50 mb-2" readonly></textarea>
+            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-24 bg-gray-50 mb-2 rounded" readonly></textarea>
+            <p id="copy-tip" class="text-[10px] text-cyan-600 text-center hidden mb-2">生成成功！請複製內容並貼到 manual_events.json</p>
         </div>
     </div>
 
@@ -168,11 +170,11 @@
             const title = event.extendedProps.description || event.title;
             const date = event.startStr;
             const img = event.extendedProps.image;
+            const url = event.url || event.extendedProps.url; // 支援手動新增的 url 屬性
             const isBirthday = event.classNames && event.classNames.includes('event-birthday');
             
             document.getElementById('modal-title').innerText = title;
             
-            // 處理海報圖片
             const imgCont = document.getElementById('modal-img-container');
             const imgTag = document.getElementById('modal-img');
             if (img) {
@@ -182,13 +184,13 @@
                 imgCont.classList.add('hidden');
             }
 
-            // 生日不顯示官網連結
             const linkBtn = document.getElementById('modal-link');
             if (isBirthday) {
                 linkBtn.style.display = 'none';
             } else {
                 linkBtn.style.display = 'block';
-                linkBtn.href = event.url || "https://hakoniwalily.jp/news/";
+                // 優先使用資料中的 url，若無則跳官網新聞頁
+                linkBtn.href = url || "https://hakoniwalily.jp/news/";
             }
             
             document.getElementById('btn-gcal').onclick = () => window.open(getGCalUrl(title, date), '_blank');
@@ -228,14 +230,18 @@
         function genJSON() {
             const t = document.getElementById('mt').value, s = document.getElementById('ms').value;
             const e = document.getElementById('me').value, i = document.getElementById('mi').value;
+            const u = document.getElementById('mu').value;
             if(!t || !s) return;
+            
             const eventObj = { "title": "⭐ "+t, "start": s, "description": t };
             if(e) eventObj.end = e;
             if(i) eventObj.image = i;
+            if(u) eventObj.url = u; // 存入自定義網址
             
             const out = document.getElementById('mo');
             out.value = JSON.stringify([eventObj], null, 2);
             out.classList.remove('hidden');
+            document.getElementById('copy-tip').classList.remove('hidden');
         }
     </script>
 </body>
