@@ -63,9 +63,10 @@
             cursor: pointer !important;
             background-color: var(--theme-primary) !important;
             border: none !important;
-            padding: 3px 6px;
+            padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.8em;
+            margin: 1px 0;
         }
 
         .event-birthday {
@@ -83,6 +84,7 @@
             background-color: rgba(15, 23, 42, 0.6);
             display: none;
             backdrop-filter: blur(4px);
+            z-index: 1000;
         }
 
         .modal-overlay.active { display: flex; }
@@ -110,7 +112,7 @@
             </nav>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="toggleDrawer()" class="w-6 h-6 flex items-center justify-center text-xs text-gray-200 hover:text-cyan-300 transition font-bold">+</button>
+            <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-lg text-gray-200 hover:text-cyan-400 transition font-bold">+</button>
         </div>
     </header>
 
@@ -118,30 +120,38 @@
         <div id="calendar"></div>
     </div>
 
-    <div id="modal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 text-center scale-95 transition-transform duration-200">
-            <h3 class="text-cyan-600 font-bold mb-4 text-xs uppercase tracking-widest">Activity Detail</h3>
+    <div id="modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 text-center relative">
+            <h3 class="text-cyan-600 font-bold mb-3 text-xs uppercase tracking-widest">Activity Detail</h3>
+            
+            <div id="modal-img-container" class="mb-4 hidden">
+                <img id="modal-img" src="" class="w-full max-h-60 object-contain rounded-lg bg-gray-50 border border-cyan-50 shadow-inner">
+            </div>
+
             <p id="modal-title" class="text-gray-800 font-bold text-lg leading-relaxed mb-6"></p>
+            
             <div class="flex flex-col gap-2">
                 <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:bg-cyan-600 transition">查看官網詳情</a>
                 
-                <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold hover:bg-cyan-50 transition flex items-center justify-center gap-2">
+                <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold hover:bg-cyan-50 transition flex items-center justify-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
                     加入我的 Google 日曆
                 </button>
-                <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-sm font-medium mt-2">關閉</button>
+                <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-sm font-medium mt-1">關閉</button>
             </div>
         </div>
     </div>
 
-    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform duration-300 z-50">
+    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform duration-300 z-[1100]">
         <div class="max-w-md mx-auto">
-            <div class="flex gap-2 mb-2">
-                <input type="text" id="mt" placeholder="活動標題" class="border p-2 flex-1 rounded-lg text-sm">
-                <input type="date" id="md" class="border p-2 rounded-lg text-sm">
-                <button onclick="genJSON()" class="bg-cyan-500 text-white px-4 rounded-lg font-bold">生成</button>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="text" id="mt" placeholder="標題" class="border p-2 rounded-lg text-sm col-span-2">
+                <input type="date" id="ms" class="border p-2 rounded-lg text-sm" title="開始日期">
+                <input type="date" id="me" class="border p-2 rounded-lg text-sm" title="結束日期 (跨日才填)">
+                <input type="text" id="mi" placeholder="圖片網址 (選填)" class="border p-2 rounded-lg text-sm col-span-2">
+                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成 JSON</button>
             </div>
-            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-16 bg-gray-50" readonly></textarea>
+            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-gray-50 mb-2" readonly></textarea>
         </div>
     </div>
 
@@ -150,18 +160,29 @@
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
         
         function getGCalUrl(title, dateStr) {
-            const date = dateStr.replace(/-/g, '');
+            const date = dateStr.replace(/-/g, '').split('T')[0];
             return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date}/${date}&details=${encodeURIComponent('來自 ハコリリ活動行事曆')}`;
         }
 
         function openModal(event) {
             const title = event.extendedProps.description || event.title;
             const date = event.startStr;
-            // 檢查是否包含 event-birthday 類別
+            const img = event.extendedProps.image;
             const isBirthday = event.classNames && event.classNames.includes('event-birthday');
             
             document.getElementById('modal-title').innerText = title;
             
+            // 處理海報圖片
+            const imgCont = document.getElementById('modal-img-container');
+            const imgTag = document.getElementById('modal-img');
+            if (img) {
+                imgTag.src = img;
+                imgCont.classList.remove('hidden');
+            } else {
+                imgCont.classList.add('hidden');
+            }
+
+            // 生日不顯示官網連結
             const linkBtn = document.getElementById('modal-link');
             if (isBirthday) {
                 linkBtn.style.display = 'none';
@@ -178,8 +199,8 @@
             const currentYear = new Date().getFullYear();
             const bdays = [];
             for(let i=0; i<5; i++){
-                bdays.push({ title: "🎂 Hanon Birthday", start: `${currentYear+i}-03-06`, className: "event-birthday", description: "Hanon 生日快樂！🐧" });
-                bdays.push({ title: "🎂 Kotoha Birthday", start: `${currentYear+i}-06-10`, className: "event-birthday", description: "Kotoha 生日快樂！🍀" });
+                bdays.push({ title: "🎂 Hanon Birthday", start: `${currentYear+i}-03-06`, className: "event-birthday", description: "Hanon 生日快樂！🎤" });
+                bdays.push({ title: "🎂 Kotoha Birthday", start: `${currentYear+i}-06-10`, className: "event-birthday", description: "Kotoha 生日快樂！🐙" });
             }
 
             var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -205,11 +226,15 @@
         window.onclick = function(e) { if(e.target.classList.contains('modal-overlay')) closeModal(); }
 
         function genJSON() {
-            const t = document.getElementById('mt').value, d = document.getElementById('md').value;
-            if(!t || !d) return;
-            const res = [{ "title": "⭐ "+t, "start": d, "description": t }];
+            const t = document.getElementById('mt').value, s = document.getElementById('ms').value;
+            const e = document.getElementById('me').value, i = document.getElementById('mi').value;
+            if(!t || !s) return;
+            const eventObj = { "title": "⭐ "+t, "start": s, "description": t };
+            if(e) eventObj.end = e;
+            if(i) eventObj.image = i;
+            
             const out = document.getElementById('mo');
-            out.value = JSON.stringify(res, null, 2);
+            out.value = JSON.stringify([eventObj], null, 2);
             out.classList.remove('hidden');
         }
     </script>
