@@ -1,78 +1,86 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-import re
+import os
 
-def clean_event_title(text):
-    if not text: return ""
-    text = text.replace('NEWSEVENT', '').replace('{NEWS}{EVENT}', '').replace('開催決定', '').replace('！', '')
-    text = re.sub(r'\d{1,4}[\.\/\-]\d{1,2}[\.\/\-]\d{1,4}', '', text)
-    text = re.sub(r'^\d{1,2}[\.\/\-]\d{1,2}\s*', '', text)
-    text = re.sub(r'\s*\d{1,2}[\.\/\-]\d{1,2}$', '', text)
-    text = re.sub(r'\d{4}', '', text)
-    return text.strip()
+def scrape_hakoniwalily():
+    url = "https://hakoniwalily.jp/news/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
 
-def scrape_hakolili():
-    base_url = "https://hakoniwalily.jp/news/"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    events = []
-    unique_urls = set()
-    
-    # 設定要抓取的頁數
-    max_pages = 3 
-
-    print(f"🚀 開始抓取ハコリリ官網新聞 (預計抓取 {max_pages} 頁)...")
-
-    for page in range(1, max_pages + 1):
-        url = base_url if page == 1 else f"{base_url}page/{page}/"
-        print(f"📄 正在處理第 {page} 頁: {url}")
+    try:
+        response = requests.get(url, headers=headers)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, "html.parser")
         
-        try:
-            res = requests.get(url, headers=headers)
-            if res.status_code != 200: break
-            res.encoding = 'utf-8'
-            soup = BeautifulSoup(res.text, 'html.parser')
-            
-            links = [a for a in soup.find_all('a', href=True) if '/news/post-' in a['href']]
-            
-            for a in links:
-                full_url = a['href'] if a['href'].startswith('http') else f"https://hakoniwalily.jp{a['href']}"
-                if full_url in unique_urls or "開催決定" not in a.get_text(): continue
-                unique_urls.add(full_url)
+        # 抓取新聞列表區塊
+        articles = soup.select("article")
+        new_events = []
 
-                inner_res = requests.get(full_url, headers=headers)
-                inner_res.encoding = 'utf-8'
-                inner_soup = BeautifulSoup(inner_res.text, 'html.parser')
-                lines = [l.strip() for l in inner_soup.get_text().split('\n') if l.strip()]
-                
-                event_title, event_date = "", ""
-                for i, line in enumerate(lines):
-                    if "タイトル" in line and i + 1 < len(lines):
-                        potential = lines[i+1]
-                        if "▼" not in potential and "【" not in potential:
-                            event_title = clean_event_title(potential)
-                    if not event_date:
-                        match = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', line)
-                        if match:
-                            event_date = f"{match.group(1)}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
+        for article in articles:
+            # 抓取日期 (格式通常是 YYYY.MM.DD)
+            date_raw = article.select_one(".date")
+            # 抓取標題
+            title_raw = article.select_one(".title")
+            # 抓取連結
+            link_raw = article.select_one("a")
 
-                if not event_title:
-                    event_title = clean_event_title(a.get_text(strip=True))
+            if date_raw and title_raw:
+                date_str = date_raw.get_text(strip=True).replace(".", "-")
+                title_str = title_raw.get_text(strip=True)
+                link_url = link_raw["href"] if link_raw else "https://hakoniwalily.jp/news/"
 
-                events.append({
-                    "title": event_title,
-                    "start": event_date if event_date else "2026-04-14",
-                    "url": full_url,
-                    "allDay": True,
-                    "description": event_title 
+                new_events.append({
+                    "title": title_str,
+                    "start": date_str,
+                    "url": link_url,
+                    "description": title_str
                 })
-        except Exception as e:
-            print(f"❌ 第 {page} 頁發生錯誤: {e}")
-            break
 
-    with open('events.json', 'w', encoding='utf-8') as f:
-        json.dump(events, f, ensure_ascii=False, indent=4)
-    print(f"✅ 抓取完成，共存入 {len(events)} 筆資料。")
+        return new_events
+    except Exception as e:
+        print(f"爬取失敗: {e}")
+        return []
+
+def save_and_merge_events(new_events):
+    file_name = 'events.json'
+    
+    # 1. 讀取現有資料
+    if os.path.exists(file_name):
+        try:
+            with open(file_name, 'r', encoding='utf-8') as f:
+                existing_events = json.load(f)
+        except:
+            existing_events = []
+    else:
+        existing_events = []
+
+    # 2. 建立現有活動的「唯一識別集」 (用 標題 + 日期 判斷)
+    # 這樣可以防止重複抓取相同的活動
+    existing_ids = {f"{ev['title']}_{ev['start']}" for ev in existing_events}
+
+    # 3. 合併資料
+    added_count = 0
+    for event in new_events:
+        event_id = f"{event['title']}_{event['start']}"
+        if event_id not in existing_ids:
+            existing_events.append(event)
+            added_count += 1
+
+    # 4. 排序 (讓最新的活動在 JSON 裡也保持整齊，可選)
+    existing_events.sort(key=lambda x: x['start'], reverse=True)
+
+    # 5. 寫回檔案
+    with open(file_name, 'w', encoding='utf-8') as f:
+        json.dump(existing_events, f, ensure_ascii=False, indent=2)
+    
+    print(f"成功合併！新增了 {added_count} 個新活動，目前總計有 {len(existing_events)} 個歷史活動。")
 
 if __name__ == "__main__":
-    scrape_hakolili()
+    print("開始爬取ハコリリ官網...")
+    latest_news = scrape_hakoniwalily()
+    if latest_news:
+        save_and_merge_events(latest_news)
+    else:
+        print("未抓取到任何新資料。")
