@@ -1,10 +1,18 @@
 [
   {
-    "title": " 『Anime Festival Asia Thailand 2026』",
-    "start": "2026-05-31",
-    "description": "『Anime Festival Asia Thailand 2026』",
-    "image": "https://pbs.twimg.com/media/HD4RxA2boAIc6pQ?format=jpg&name=large",
-    "url": "https://animefestival.asia/afath26/"
+    "title": "『ハコリリ夏祭り2025』",
+    "start": "2025-07-12",
+    "description": "『ハコリリ夏祭り2025』",
+    "end": "2025-07-13",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2025/05/flyer-1-1086x1536.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0091/"
+  },
+  {
+    "title": "HoneyWorks Presents ハニフェス2025 ～女子校文化祭 日比谷～",
+    "start": "2025-09-15",
+    "description": "HoneyWorks Presents ハニフェス2025 ～女子校文化祭 日比谷～",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2025/06/750f931543ee9b37a19e2aea87ea4acf-1085x1536.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0092/"
   },
   {
     "title": "ハコニワリリィ Live Tour 2026『箱庭トレジャークルーズ』 愛知・名古屋",
@@ -40,5 +48,12 @@
     "description": "ハコニワリリィ Live Tour 2026『箱庭トレジャークルーズ』 東京・Zepp",
     "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2025/11/flyer-1086x1536.jpg",
     "url": "https://hakoniwalily.jp/news/post-0097/"
+  },
+  {
+    "title": " 『Anime Festival Asia Thailand 2026』",
+    "start": "2026-05-31",
+    "description": "『Anime Festival Asia Thailand 2026』",
+    "image": "https://pbs.twimg.com/media/HD4RxA2boAIc6pQ?format=jpg&name=large",
+    "url": "https://animefestival.asia/afath26/"
   }
 ]
