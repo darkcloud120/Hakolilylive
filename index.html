@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <link rel="icon" href="https://yt3.googleusercontent.com/sLrOQHzzr6YL4VHb3iOjB9lGPbZb775QaNgljZQQWu9Fw5AVwErgkt-GlKDWxOYtMWKT_QjoAA=s160-c-k-c0x00ffffff-no-rj" type="image/png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ハコリリ活動行事曆</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,36 +11,32 @@
             --theme-primary: #00ced1;   
             --theme-bg: #e6f4f1;        
             --theme-text: #155e75;      
-            --birthday-gold: #f59e0b;   
+            --birthday-gold: #f59e0b;
+            --past-event-bg: #cbd5e1; /* 過去活動的灰色 */
         }
 
-html, body {
-        margin: 0; padding: 0; 
-        /* 修改這裡：使用 dvh 確保在手機上高度正確 */
-        height: 100dvh; 
-        background-color: var(--theme-bg);
-        overflow: hidden;
-        font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-    }
+        html, body {
+            margin: 0; padding: 0; height: 100dvh;
+            background-color: var(--theme-bg);
+            overflow: hidden;
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+        }
 
-    #calendar-container {
-        /* 修改這裡：同樣使用 dvh，並稍微增加底部的 padding 防止被邊緣切到 */
-        height: calc(100dvh - 64px); 
-        padding: 12px 12px 24px 12px; 
-        box-sizing: border-box;
-    }
+        #calendar-container {
+            height: calc(100dvh - 64px);
+            padding: 12px 12px 24px 12px;
+            box-sizing: border-box;
+        }
 
-    /* 針對清單模式 (List View) 的微調，確保內容可以捲動 */
-    .fc-view-harness {
-        height: 100% !important;
-    }
-    
-    .fc-scroller {
-        overflow-y: auto !important;
-    }
+        .fc {
+            height: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #b2ebf2;
+            overflow: hidden;
+        }
 
-
-        /* 移除日期數字後的 "日" */
         .fc-daygrid-day-number {
             text-decoration: none !important;
             color: var(--theme-text) !important;
@@ -52,18 +47,20 @@ html, body {
         .fc-event-time { display: none !important; }
 
         .fc-toolbar-title {
-            font-size: 1.1em !important;
+            font-size: 1em !important;
             font-weight: 800;
             color: var(--theme-text) !important;
         }
 
+        /* 按鈕樣式優化 */
         .fc-button {
             background-color: #f0fdfa !important;
             border: 1px solid #99f6e4 !important;
             color: var(--theme-text) !important;
             font-weight: 600 !important;
             border-radius: 8px !important;
-            font-size: 0.8em !important;
+            font-size: 0.75em !important;
+            padding: 4px 8px !important;
         }
 
         .fc-button-active {
@@ -72,14 +69,27 @@ html, body {
             color: white !important;
         }
 
+        /* 活動條基礎樣式 */
         .fc-event {
             cursor: pointer !important;
             background-color: var(--theme-primary) !important;
             border: none !important;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-size: 0.8em;
             margin: 1px 0;
+            transition: opacity 0.3s;
+        }
+
+        /* 過去活動的樣式：變灰、半透明 */
+        .event-past {
+            background-color: var(--past-event-bg) !important;
+            opacity: 0.6;
+        }
+
+        /* 隱藏過去活動的類別 */
+        .hide-past .event-past {
+            display: none !important;
         }
 
         .event-birthday {
@@ -97,11 +107,176 @@ html, body {
             background-color: rgba(15, 23, 42, 0.6);
             display: none;
             backdrop-filter: blur(4px);
-            z-index: 1000;
+            z-index: 2000;
         }
 
         .modal-overlay.active { display: flex; }
     </style>
+</head>
+<body>
+
+    <header class="h-16 flex items-center justify-between px-4 bg-white shadow-sm border-b border-cyan-100 relative z-10">
+        <div class="flex items-center gap-2 overflow-hidden">
+            <h1 class="text-sm md:text-base font-black text-cyan-700 whitespace-nowrap">ハコリリ行事曆</h1>
+            <button id="toggle-past" onclick="togglePastEvents()" class="ml-2 px-2 py-1 bg-gray-100 border border-gray-300 rounded text-[10px] font-bold text-gray-600 whitespace-nowrap">
+                隱藏過去活動
+            </button>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-xl text-gray-300 hover:text-cyan-500 font-bold transition">+</button>
+        </div>
+    </header>
+
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <div id="modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 text-center">
+            <h3 class="text-cyan-600 font-bold mb-3 text-xs uppercase tracking-widest">Activity Detail</h3>
+            <div id="modal-img-container" class="mb-4 hidden">
+                <img id="modal-img" src="" class="w-full max-h-60 object-contain rounded-lg bg-gray-50 border border-cyan-50">
+            </div>
+            <p id="modal-title" class="text-gray-800 font-bold text-lg mb-6"></p>
+            <div class="flex flex-col gap-2">
+                <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:bg-cyan-600 transition">查看活動詳情</a>
+                <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold text-sm">加入 Google 日曆</button>
+                <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-sm mt-1">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 transform translate-y-full transition-transform duration-300 z-[1100]">
+        <div class="max-w-md mx-auto">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="text" id="mt" placeholder="活動標題" class="border p-2 rounded-lg text-sm col-span-2">
+                <input type="date" id="ms" class="border p-2 rounded-lg text-sm">
+                <input type="date" id="me" class="border p-2 rounded-lg text-sm" title="結束日期(跨日請選結束隔天)">
+                <input type="text" id="mi" placeholder="海報圖片網址" class="border p-2 rounded-lg text-sm col-span-2">
+                <input type="text" id="mu" placeholder="詳情連結網址" class="border p-2 rounded-lg text-sm col-span-2">
+                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
+            </div>
+            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-gray-50 mb-2" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        let hidePast = false;
+
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+        
+        function togglePastEvents() {
+            hidePast = !hidePast;
+            const container = document.getElementById('calendar-container');
+            const btn = document.getElementById('toggle-past');
+            if (hidePast) {
+                container.classList.add('hide-past');
+                btn.innerText = "顯示過去活動";
+                btn.classList.replace('bg-gray-100', 'bg-cyan-100');
+            } else {
+                container.classList.remove('hide-past');
+                btn.innerText = "隱藏過去活動";
+                btn.classList.replace('bg-cyan-100', 'bg-gray-100');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            const today = new Date().toISOString().split('T')[0];
+            
+            const bdays = [];
+            for(let i=0; i<5; i++){
+                bdays.push({ 
+                    title: "🐧 Hanon Birthday", 
+                    start: `${currentYear+i}-03-06`, 
+                    allDay: true, 
+                    className: "event-birthday", 
+                    description: "Hanon 生日快樂！🐧" 
+                });
+                bdays.push({ 
+                    title: "🍀 Kotoha Birthday", 
+                    start: `${currentYear+i}-06-10`, 
+                    allDay: true, 
+                    className: "event-birthday", 
+                    description: "Kotoha 生日快樂！🍀" 
+                });
+            }
+
+            var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: 'dayGridMonth',
+                locale: 'zh-tw',
+                height: '100%',
+                displayEventTime: false,
+                nextDayThreshold: '00:00:00',
+                dayCellContent: (arg) => arg.date.getDate(),
+                headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,listYear' },
+                
+                // 🚀 自動判斷過去活動與修正跨日
+                eventDataTransform: function(eventData) {
+                    const eventDate = eventData.end ? eventData.end : eventData.start;
+                    // 如果活動日期早於今天，加入 'event-past' class
+                    if (eventDate < today) {
+                        eventData.className = (eventData.className || "") + " event-past";
+                    }
+                    // 強制跨日活動為全天模式
+                    if (eventData.end && eventData.end !== eventData.start) {
+                        eventData.allDay = true;
+                    }
+                    return eventData;
+                },
+
+                events: bdays,
+                eventSources: [
+                    { url: 'events.json?v=' + Date.now() },
+                    { url: 'manual_events.json?v=' + Date.now() }
+                ],
+                eventClick: (info) => {
+                    info.jsEvent.preventDefault();
+                    openModal(info.event);
+                }
+            });
+            calendar.render();
+        });
+
+        function openModal(event) {
+            const title = event.extendedProps.description || event.title;
+            const img = event.extendedProps.image;
+            document.getElementById('modal-title').innerText = title;
+            const imgCont = document.getElementById('modal-img-container');
+            const imgTag = document.getElementById('modal-img');
+            if (img) { imgTag.src = img; imgCont.classList.remove('hidden'); } 
+            else { imgCont.classList.add('hidden'); }
+            
+            const isBirthday = event.title.includes('Birthday');
+            const linkBtn = document.getElementById('modal-link');
+            linkBtn.style.display = isBirthday ? 'none' : 'block';
+            linkBtn.href = event.url || "https://hakoniwalily.jp/news/";
+            
+            document.getElementById('btn-gcal').onclick = () => {
+                const gUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${event.startStr.replace(/-/g,'')}/${(event.endStr||event.startStr).replace(/-/g,'')}`;
+                window.open(gUrl, '_blank');
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+
+        window.onclick = (e) => { if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+        function genJSON() {
+            const t = document.getElementById('mt').value, s = document.getElementById('ms').value, e = document.getElementById('me').value;
+            const i = document.getElementById('mi').value, u = document.getElementById('mu').value;
+            if(!t || !s) return;
+            const eventObj = { "title": "⭐ "+t, "start": s, "description": t, "allDay": true };
+            if(e) eventObj.end = e;
+            if(i) eventObj.image = i;
+            if(u) eventObj.url = u;
+            const out = document.getElementById('mo');
+            out.value = JSON.stringify([eventObj], null, 2);
+            out.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
 </head>
 <body>
 
