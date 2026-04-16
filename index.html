@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <link rel="icon" href="https://yt3.googleusercontent.com/sLrOQHzzr6YL4VHb3iOjB9lGPbZb775QaNgljZQQWu9Fw5AVwErgkt-GlKDWxOYtMWKT_QjoAA=s160-c-k-c0x00ffffff-no-rj" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ハコリリ活動行事曆</title>
@@ -37,15 +38,21 @@
             overflow: hidden;
         }
 
-        /* 過去活動變色 */
+        /* 過去活動樣式 */
         .event-past {
             background-color: var(--past-event-bg) !important;
             border-color: var(--past-event-bg) !important;
             opacity: 0.5 !important;
         }
 
-        /* 隱藏邏輯：當容器有 hide-past 時，隱藏帶有 event-past 的活動 */
+        /* 隱藏過去活動邏輯 */
         .hide-past .event-past {
+            display: none !important;
+        }
+
+        /* 🚀 關鍵修正：隱藏清單模式中沒有活動的日期欄位 */
+        .hide-past .fc-list-day:has(+ .fc-list-event.event-past),
+        .hide-past .fc-list-day:not(:has(+ .fc-list-event:not(.event-past))) {
             display: none !important;
         }
 
@@ -73,6 +80,12 @@
             font-size: 0.7em !important;
         }
 
+        .fc-button-active {
+            background-color: var(--theme-primary) !important;
+            border-color: var(--theme-primary) !important;
+            color: white !important;
+        }
+
         .fc-event {
             cursor: pointer !important;
             background-color: var(--theme-primary) !important;
@@ -96,29 +109,38 @@
             z-index: 2000;
         }
         .modal-overlay.active { display: flex; }
+
+        /* 自定義按鈕放在 Toolbar 旁 */
+        .custom-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body>
 
-    <header class="h-16 flex items-center justify-between px-3 bg-white shadow-sm border-b border-cyan-100 relative z-10">
-        <div class="flex items-center gap-2 overflow-hidden">
-            <h1 class="text-xs md:text-sm font-black text-cyan-700 whitespace-nowrap">ハコリリ</h1>
-            
+    <header class="h-16 flex items-center justify-between px-4 bg-white shadow-sm border-b border-cyan-100 relative z-10">
+        <div class="flex items-center gap-3">
+            <h1 class="text-sm md:text-base font-black text-cyan-700 whitespace-nowrap">ハコリリ活動行事曆</h1>
             <nav class="flex items-center gap-2 border-l pl-2 border-cyan-50">
-                <a href="https://x.com/kotohatakoyaki" target="_blank" class="text-blue-400">
+                <a href="https://x.com/kotohatakoyaki" target="_blank" class="text-blue-400 hover:opacity-70 transition">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.444 4.834c-.812.358-1.683.6-2.597.71a4.532 4.532 0 001.988-2.503 9.042 9.042 0 01-2.87 1.096 4.524 4.524 0 00-7.705 4.122 12.83 12.83 0 01-9.317-4.722 4.521 4.521 0 001.4 6.034 4.504 4.504 0 01-2.048-.565v.057a4.522 4.522 0 003.625 4.43 4.528 4.528 0 01-2.04.077 4.526 4.526 0 004.225 3.14A9.073 9.073 0 010 18.39a12.793 12.793 0 006.926 2.03c8.311 0 12.855-6.885 12.855-12.854 0-.196-.004-.39-.013-.585a9.184 9.184 0 002.256-2.333z"/></svg>
                 </a>
-                <a href="https://www.youtube.com/@HaKoNiwaLily" target="_blank" class="text-red-500">
+                <a href="https://www.youtube.com/@HaKoNiwaLily" target="_blank" class="text-red-500 hover:opacity-70 transition">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </a>
             </nav>
-
-            <button id="toggle-past" onclick="togglePastEvents()" class="ml-1 px-2 py-1 bg-gray-100 border border-gray-200 rounded text-[9px] font-bold text-gray-500">
-                隱藏過去活動
-            </button>
         </div>
         
-        <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-xl text-gray-300 font-bold">+</button>
+        <div class="flex items-center gap-2">
+            <div id="custom-controls" class="hidden md:flex items-center">
+                <button id="toggle-past" onclick="togglePastEvents()" class="px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-bold text-gray-500 hover:bg-cyan-50 transition">
+                    隱藏過去活動
+                </button>
+            </div>
+            <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-xl text-gray-300 font-bold">+</button>
+        </div>
     </header>
 
     <div id="calendar-container">
@@ -128,9 +150,7 @@
     <div id="modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 text-center">
             <h3 class="text-cyan-600 font-bold mb-3 text-[10px] tracking-widest uppercase">Detail</h3>
-            <div id="modal-img-container" class="mb-4 hidden">
-                <img id="modal-img" src="" class="w-full max-h-60 object-contain rounded-lg">
-            </div>
+            <div id="modal-img-container" class="mb-4 hidden"><img id="modal-img" src="" class="w-full max-h-60 object-contain rounded-lg"></div>
             <p id="modal-title" class="text-gray-800 font-bold text-base mb-6"></p>
             <div class="flex flex-col gap-2">
                 <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold">查看詳情</a>
@@ -148,7 +168,7 @@
                 <input type="date" id="me" class="border p-2 rounded-lg text-sm" title="結束隔天">
                 <input type="text" id="mi" placeholder="圖片網址" class="border p-2 rounded-lg text-sm col-span-2">
                 <input type="text" id="mu" placeholder="詳情網址" class="border p-2 rounded-lg text-sm col-span-2">
-                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成 JSON</button>
+                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
             </div>
             <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-gray-50 mb-2" readonly></textarea>
         </div>
@@ -159,7 +179,6 @@
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
         
-        // 修復隱藏按鈕邏輯
         function togglePastEvents() {
             hidePast = !hidePast;
             const container = document.getElementById('calendar-container');
@@ -167,11 +186,11 @@
             if (hidePast) {
                 container.classList.add('hide-past');
                 btn.innerText = "顯示過去活動";
-                btn.classList.add('bg-cyan-100', 'text-cyan-700');
+                btn.classList.add('bg-cyan-100', 'text-cyan-700', 'border-cyan-200');
             } else {
                 container.classList.remove('hide-past');
                 btn.innerText = "隱藏過去活動";
-                btn.classList.remove('bg-cyan-100', 'text-cyan-700');
+                btn.classList.remove('bg-cyan-100', 'text-cyan-700', 'border-cyan-200');
             }
         }
 
@@ -179,7 +198,6 @@
             const todayStr = new Date().toISOString().split('T')[0];
             const currentYear = new Date().getFullYear();
             
-            // 更新生日祝福符號
             const bdays = [];
             for(let i=0; i<3; i++){
                 bdays.push({ title: "🐧 Hanon Birthday", start: `${currentYear+i}-03-06`, allDay: true, className: "event-birthday", description: "Hanon 生日快樂！🐧" });
@@ -193,11 +211,14 @@
                 displayEventTime: false,
                 nextDayThreshold: '00:00:00',
                 dayCellContent: (arg) => arg.date.getDate(),
-                headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,listYear' },
+                headerToolbar: { 
+                    left: 'prev,next', 
+                    center: 'title', 
+                    right: 'dayGridMonth,listYear' 
+                },
+                buttonText: { dayGridMonth: 'month', listYear: 'list' },
                 
-                // 🚀 修復變色與顯示邏輯
                 eventDataTransform: function(eventData) {
-                    // 比對日期：如果活動結束日期或開始日期小於今天，就視為過去
                     const compareDate = eventData.end || eventData.start;
                     if (compareDate < todayStr) {
                         eventData.classNames = (eventData.classNames || []);
@@ -220,6 +241,16 @@
                 }
             });
             calendar.render();
+
+            // 🚀 移動按鈕位置：將「隱藏過去活動」插入到 FC 右側按鈕組的前面
+            const toolbarRight = document.querySelector('.fc-toolbar-chunk:last-child');
+            const customBtn = document.getElementById('toggle-past');
+            if (toolbarRight && customBtn) {
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'fc-button-group custom-btn-group mr-2';
+                btnGroup.appendChild(customBtn);
+                toolbarRight.prepend(btnGroup);
+            }
         });
 
         function openModal(event) {
@@ -230,12 +261,10 @@
             const imgTag = document.getElementById('modal-img');
             if (img) { imgTag.src = img; imgCont.classList.remove('hidden'); } 
             else { imgCont.classList.add('hidden'); }
-            
             const isBirthday = event.title.includes('Birthday');
             const linkBtn = document.getElementById('modal-link');
             linkBtn.style.display = isBirthday ? 'none' : 'block';
             linkBtn.href = event.url || "https://hakoniwalily.jp/news/";
-            
             document.getElementById('btn-gcal').onclick = () => {
                 const gUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${event.startStr.replace(/-/g,'')}/${(event.endStr||event.startStr).replace(/-/g,'')}`;
                 window.open(gUrl, '_blank');
