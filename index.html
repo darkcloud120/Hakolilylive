@@ -24,7 +24,7 @@
             --theme-text: #e5e7eb;      
             --card-bg: #1a1a1a;         
             --border-color: #333333;    
-            --list-day-bg: #2d2d2d; /* 深色模式下日期橫條的底色 */
+            --list-day-bg: #2d2d2d; 
         }
 
         html, body {
@@ -52,7 +52,7 @@
             color: var(--theme-text);
         }
 
-        /* 過去活動樣式 */
+        /* 過去活動隱藏邏輯 */
         .event-past {
             background-color: var(--theme-primary) !important;
             border-color: var(--theme-primary) !important;
@@ -60,15 +60,19 @@
             opacity: 0.7 !important;
         }
 
-        .hide-past .event-past { display: none !important; }
-
-        /* 修正清單模式：日期橫條文字顏色 */
-        .fc-list-day-cushion {
-            background-color: var(--list-day-bg) !important;
+        /* 當啟動 hide-past 模式時，強制隱藏過去活動 */
+        .hide-past .event-past { 
+            display: none !important; 
         }
-        
+
+        /* 強制隱藏沒有活動顯示的日期橫條 (JS 會動態輔助此類名) */
+        .fc-list-day.hidden-day {
+            display: none !important;
+        }
+
+        .fc-list-day-cushion { background-color: var(--list-day-bg) !important; }
         .fc-list-day-text, .fc-list-day-side-text {
-            color: var(--theme-text) !important; /* 強制日期文字跟隨主題色 */
+            color: var(--theme-text) !important;
             font-weight: bold !important;
             text-decoration: none !important;
         }
@@ -81,12 +85,7 @@
 
         .fc-theme-standard td, .fc-theme-standard th { border-color: var(--border-color) !important; }
         .fc-event-time { display: none !important; }
-
-        .fc-toolbar-title {
-            font-size: 0.9em !important;
-            font-weight: 800;
-            color: var(--theme-text) !important;
-        }
+        .fc-toolbar-title { font-size: 0.9em !important; font-weight: 800; color: var(--theme-text) !important; }
 
         .fc-button {
             background-color: var(--card-bg) !important;
@@ -111,19 +110,13 @@
             color: #000 !important;
         }
 
-        /* 生日區塊 */
         .event-birthday { animation: pulse 2s infinite; color: #000 !important; }
         .event-kotoha { background-color: var(--kotoha-green) !important; border-color: var(--kotoha-green) !important; }
         .event-hanon { background-color: var(--hanon-blue) !important; border-color: var(--hanon-blue) !important; }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            display: none;
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-        }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.7); display: none; backdrop-filter: blur(4px); z-index: 2000; }
         .modal-overlay.active { display: flex; }
         .modal-body { background-color: var(--card-bg); border: 2px solid var(--border-color); color: var(--theme-text); }
     </style>
@@ -165,7 +158,7 @@
             <p id="modal-title" class="font-bold text-base mb-6"></p>
             <div class="flex flex-col gap-2">
                 <a id="modal-link" href="#" target="_blank" class="w-full bg-emerald-500 py-3 rounded-xl text-white font-bold">查看詳情</a>
-                <button id="btn-gcal" class="w-full bg-[var(--card-bg)] border-2 border-[var(--border-color)] py-3 rounded-xl text-emerald-600 font-bold text-sm">加入Google日曆</button>
+                <button id="btn-gcal" class="w-full bg-[var(--card-bg)] border-2 border-[var(--border-color)] py-3 rounded-xl text-emerald-600 font-bold text-sm">加日曆</button>
                 <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-sm mt-1">關閉</button>
             </div>
         </div>
@@ -179,7 +172,7 @@
                 <input type="date" id="me" class="border p-2 rounded-lg text-sm bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
                 <input type="text" id="mi" placeholder="圖片網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
                 <input type="text" id="mu" placeholder="詳情網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
-                <button onclick="genJSON()" class="bg-emerald-500 text-white p-2 rounded-lg font-bold col-span-2">生成 JSON</button>
+                <button onclick="genJSON()" class="bg-emerald-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
             </div>
             <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-[var(--theme-bg)] text-[var(--theme-text)]" readonly></textarea>
         </div>
@@ -187,6 +180,8 @@
 
     <script>
         let hidePast = false;
+        let calendar;
+
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('translate-y-0'); }
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
         
@@ -199,6 +194,7 @@
 
         if (localStorage.getItem('theme') === 'dark') toggleDarkMode();
 
+        // 🚀 關鍵修正：切換隱藏狀態時，觸發清單橫條更新
         function togglePastEvents() {
             hidePast = !hidePast;
             const container = document.getElementById('calendar-container');
@@ -210,6 +206,36 @@
                 container.classList.remove('hide-past');
                 btn.innerText = "隱藏過去活動";
             }
+            updateListHeaders(); // 手動更新一次
+        }
+
+        // 🚀 關鍵修正：檢查 List 視圖中的日期橫條，如果其下方沒有可見活動，則隱藏該日期
+        function updateListHeaders() {
+            if (!hidePast) {
+                document.querySelectorAll('.fc-list-day').forEach(el => el.classList.remove('hidden-day'));
+                return;
+            }
+            // 延遲一小段時間確保渲染完成
+            setTimeout(() => {
+                const days = document.querySelectorAll('.fc-list-day');
+                days.forEach(day => {
+                    let next = day.nextElementSibling;
+                    let hasVisibleEvent = false;
+                    // 檢查直到下一個日期橫條前的所有活動
+                    while (next && !next.classList.contains('fc-list-day')) {
+                        if (next.classList.contains('fc-list-event') && !next.classList.contains('event-past')) {
+                            hasVisibleEvent = true;
+                            break;
+                        }
+                        next = next.nextElementSibling;
+                    }
+                    if (!hasVisibleEvent) {
+                        day.classList.add('hidden-day');
+                    } else {
+                        day.classList.remove('hidden-day');
+                    }
+                });
+            }, 10);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -222,7 +248,7 @@
                 bdays.push({ title: "🍀 Kotoha Birthday", start: `${currentYear+i}-06-10`, allDay: true, classNames: ["event-birthday", "event-kotoha"], description: "Kotoha 生日快樂！🍀" });
             }
 
-            var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: 'dayGridMonth',
                 locale: 'zh-tw',
                 height: '100%',
@@ -245,7 +271,9 @@
                     { url: 'events.json?v=' + Date.now() },
                     { url: 'manual_events.json?v=' + Date.now() }
                 ],
-                eventClick: (info) => { info.jsEvent.preventDefault(); openModal(info.event); }
+                eventClick: (info) => { info.jsEvent.preventDefault(); openModal(info.event); },
+                // 🚀 關鍵修正：每次渲染視圖（包含翻頁）都要檢查
+                didRender: () => { updateListHeaders(); }
             });
             calendar.render();
 
