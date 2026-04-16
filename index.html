@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <link rel="icon" href="https://yt3.googleusercontent.com/sLrOQHzzr6YL4VHb3iOjB9lGPbZb775QaNgljZQQWu9Fw5AVwErgkt-GlKDWxOYtMWKT_QjoAA=s160-c-k-c0x00ffffff-no-rj" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ハコリリ活動行事曆</title>
@@ -10,10 +9,11 @@
     <style>
         :root {
             --theme-primary: #00ced1;   /* 主題青色 */
-            --theme-bg: #f0f9f7;        /* 微調背景：薄荷白 */
-            --theme-text: #0f5a5a;      /* 深青色文字 */
+            --theme-bg: #f0f9f7;        /* 背景：薄荷白 */
+            --theme-text: #155e75;      /* 恢復原本的深青色文字 */
             --birthday-gold: #f59e0b;
-            --past-event-bg: #70F595;   /* 🚀 你指定的過期活動底色 */ 
+            --kotoha-green: #47F583;    /* 🚀 你指定的 Kotoha/過期活動亮綠色 */
+            --hanon-blue: #a7f3d0;      /* Hanon 代表藍色 */
         }
 
         html, body {
@@ -33,17 +33,17 @@
             height: 100%;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            border: 1px solid #b2ebf2;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #c9eadd;
             overflow: hidden;
         }
 
-        /* 過去活動樣式 */
+        /* 過去活動樣式：亮綠色底色，恢復深色文字 */
         .event-past {
-            background-color: var(--past-event-bg) !important;
-            border-color: var(--past-event-bg) !important;
-            color: #166534 !important; /* 深綠色文字增加對比度 */
-            opacity: 0.8 !important;
+            background-color: var(--kotoha-green) !important;
+            border-color: var(--kotoha-green) !important;
+            color: var(--theme-text) !important; /* 恢復原本文字顏色 */
+            opacity: 0.9 !important;
         }
 
         /* 隱藏過去活動邏輯 */
@@ -51,7 +51,7 @@
             display: none !important;
         }
 
-        /* 🚀 關鍵修正：隱藏清單模式中沒有活動的日期欄位 */
+        /* 修正清單模式：隱藏沒有活動的日期欄位 */
         .hide-past .fc-list-day:has(+ .fc-list-event.event-past),
         .hide-past .fc-list-day:not(:has(+ .fc-list-event:not(.event-past))) {
             display: none !important;
@@ -74,7 +74,7 @@
 
         .fc-button {
             background-color: #f0fdfa !important;
-            border: 1px solid #99f6e4 !important;
+            border: 1px solid #c1f2dc !important;
             color: var(--theme-text) !important;
             font-weight: 600 !important;
             border-radius: 6px !important;
@@ -96,9 +96,22 @@
             font-size: 0.75em;
         }
 
+        /* 生日區塊微調 */
         .event-birthday {
-            background-color: var(--birthday-gold) !important;
             animation: pulse 2s infinite;
+            color: var(--theme-text) !important;
+        }
+        
+        /* Kotoha 生日：亮綠色 */
+        .event-kotoha {
+            background-color: var(--kotoha-green) !important;
+            border-color: var(--kotoha-green) !important;
+        }
+        
+        /* Hanon 生日：淡藍色 */
+        .event-hanon {
+            background-color: var(--hanon-blue) !important;
+            border-color: var(--hanon-blue) !important;
         }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
@@ -111,7 +124,6 @@
         }
         .modal-overlay.active { display: flex; }
 
-        /* 自定義按鈕放在 Toolbar 旁 */
         .custom-btn-group {
             display: flex;
             align-items: center;
@@ -121,10 +133,10 @@
 </head>
 <body>
 
-    <header class="h-16 flex items-center justify-between px-4 bg-white shadow-sm border-b border-cyan-100 relative z-10">
+    <header class="h-16 flex items-center justify-between px-4 bg-white shadow-sm border-b border-emerald-100 relative z-10">
         <div class="flex items-center gap-3">
-            <h1 class="text-sm md:text-base font-black text-cyan-700 whitespace-nowrap">ハコリリ活動行事曆</h1>
-            <nav class="flex items-center gap-2 border-l pl-2 border-cyan-50">
+            <h1 class="text-sm md:text-base font-black text-emerald-800 whitespace-nowrap">ハコリリ活動行事曆</h1>
+            <nav class="flex items-center gap-2 border-l pl-2 border-emerald-100">
                 <a href="https://x.com/kotohatakoyaki" target="_blank" class="text-blue-400 hover:opacity-70 transition">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.444 4.834c-.812.358-1.683.6-2.597.71a4.532 4.532 0 001.988-2.503 9.042 9.042 0 01-2.87 1.096 4.524 4.524 0 00-7.705 4.122 12.83 12.83 0 01-9.317-4.722 4.521 4.521 0 001.4 6.034 4.504 4.504 0 01-2.048-.565v.057a4.522 4.522 0 003.625 4.43 4.528 4.528 0 01-2.04.077 4.526 4.526 0 004.225 3.14A9.073 9.073 0 010 18.39a12.793 12.793 0 006.926 2.03c8.311 0 12.855-6.885 12.855-12.854 0-.196-.004-.39-.013-.585a9.184 9.184 0 002.256-2.333z"/></svg>
                 </a>
@@ -135,11 +147,9 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <div id="custom-controls" class="hidden md:flex items-center">
-                <button id="toggle-past" onclick="togglePastEvents()" class="px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-bold text-gray-500 hover:bg-cyan-50 transition">
-                    隱藏過去活動
-                </button>
-            </div>
+            <button id="toggle-past" onclick="togglePastEvents()" class="px-2 py-1.5 bg-emerald-50 border border-emerald-200 rounded-md text-[10px] font-bold text-emerald-700 hover:bg-emerald-100 transition">
+                隱藏過去活動
+            </button>
             <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-xl text-gray-300 font-bold">+</button>
         </div>
     </header>
@@ -149,13 +159,13 @@
     </div>
 
     <div id="modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-cyan-100 text-center">
-            <h3 class="text-cyan-600 font-bold mb-3 text-[10px] tracking-widest uppercase">Detail</h3>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border-2 border-emerald-100 text-center">
+            <h3 class="text-emerald-600 font-bold mb-3 text-[10px] tracking-widest uppercase">Detail</h3>
             <div id="modal-img-container" class="mb-4 hidden"><img id="modal-img" src="" class="w-full max-h-60 object-contain rounded-lg"></div>
             <p id="modal-title" class="text-gray-800 font-bold text-base mb-6"></p>
             <div class="flex flex-col gap-2">
-                <a id="modal-link" href="#" target="_blank" class="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold">查看詳情</a>
-                <button id="btn-gcal" class="w-full bg-white border-2 border-cyan-100 py-3 rounded-xl text-cyan-600 font-bold text-sm">加入Google日曆</button>
+                <a id="modal-link" href="#" target="_blank" class="w-full bg-emerald-500 py-3 rounded-xl text-white font-bold">查看詳情</a>
+                <button id="btn-gcal" class="w-full bg-white border-2 border-emerald-100 py-3 rounded-xl text-emerald-600 font-bold text-sm">加入Google日曆</button>
                 <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-sm mt-1">關閉</button>
             </div>
         </div>
@@ -166,10 +176,10 @@
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <input type="text" id="mt" placeholder="標題" class="border p-2 rounded-lg text-sm col-span-2">
                 <input type="date" id="ms" class="border p-2 rounded-lg text-sm">
-                <input type="date" id="me" class="border p-2 rounded-lg text-sm" title="結束隔天">
+                <input type="date" id="me" class="border p-2 rounded-lg text-sm">
                 <input type="text" id="mi" placeholder="圖片網址" class="border p-2 rounded-lg text-sm col-span-2">
                 <input type="text" id="mu" placeholder="詳情網址" class="border p-2 rounded-lg text-sm col-span-2">
-                <button onclick="genJSON()" class="bg-cyan-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
+                <button onclick="genJSON()" class="bg-emerald-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
             </div>
             <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-gray-50 mb-2" readonly></textarea>
         </div>
@@ -187,11 +197,11 @@
             if (hidePast) {
                 container.classList.add('hide-past');
                 btn.innerText = "顯示過去活動";
-                btn.classList.add('bg-cyan-100', 'text-cyan-700', 'border-cyan-200');
+                btn.classList.add('bg-emerald-200');
             } else {
                 container.classList.remove('hide-past');
                 btn.innerText = "隱藏過去活動";
-                btn.classList.remove('bg-cyan-100', 'text-cyan-700', 'border-cyan-200');
+                btn.classList.remove('bg-emerald-200');
             }
         }
 
@@ -201,8 +211,10 @@
             
             const bdays = [];
             for(let i=0; i<3; i++){
-                bdays.push({ title: "🐧 Hanon Birthday", start: `${currentYear+i}-03-06`, allDay: true, className: "event-birthday", description: "Hanon 生日快樂！🐧" });
-                bdays.push({ title: "🍀 Kotoha Birthday", start: `${currentYear+i}-06-10`, allDay: true, className: "event-birthday", description: "Kotoha 生日快樂！🍀" });
+                // Hanon: 淡藍色
+                bdays.push({ title: "🐧 Hanon Birthday", start: `${currentYear+i}-03-06`, allDay: true, classNames: ["event-birthday", "event-hanon"], description: "Hanon 生日快樂！🐧" });
+                // Kotoha: 亮綠色
+                bdays.push({ title: "🍀 Kotoha Birthday", start: `${currentYear+i}-06-10`, allDay: true, classNames: ["event-birthday", "event-kotoha"], description: "Kotoha 生日快樂！🍀" });
             }
 
             var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -243,7 +255,7 @@
             });
             calendar.render();
 
-            // 🚀 移動按鈕位置：將「隱藏過去活動」插入到 FC 右側按鈕組的前面
+            // 🚀 將按鈕移到 Toolbar 右側按鈕組旁邊
             const toolbarRight = document.querySelector('.fc-toolbar-chunk:last-child');
             const customBtn = document.getElementById('toggle-past');
             if (toolbarRight && customBtn) {
