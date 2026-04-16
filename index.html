@@ -14,18 +14,17 @@
             --theme-text: #000000;      
             --card-bg: #ffffff;
             --border-color: #c9eadd;
-            --birthday-gold: #f59e0b;
             --kotoha-green: #43ED40;    
             --hanon-blue: #60adf5;      
+            --list-day-bg: #f8fafc;
         }
 
-        /* 🌑 深色模式設定 */
         .dark-mode {
-            --theme-bg: #0a0a0a;        /* 極簡黑背景 */
-            --theme-text: #e5e7eb;      /* 灰白文字 */
-            --card-bg: #1a1a1a;         /* 深灰卡片 */
-            --border-color: #333333;    /* 深色邊框 */
-            --theme-primary: #0CF5C9;   /* 亮綠色保持不變以產生霓虹感 */
+            --theme-bg: #0a0a0a;        
+            --theme-text: #e5e7eb;      
+            --card-bg: #1a1a1a;         
+            --border-color: #333333;    
+            --list-day-bg: #2d2d2d; /* 深色模式下日期橫條的底色 */
         }
 
         html, body {
@@ -57,11 +56,22 @@
         .event-past {
             background-color: var(--theme-primary) !important;
             border-color: var(--theme-primary) !important;
-            color: #000000 !important; /* 確保在亮綠底上文字清晰 */
+            color: #000000 !important;
             opacity: 0.7 !important;
         }
 
         .hide-past .event-past { display: none !important; }
+
+        /* 修正清單模式：日期橫條文字顏色 */
+        .fc-list-day-cushion {
+            background-color: var(--list-day-bg) !important;
+        }
+        
+        .fc-list-day-text, .fc-list-day-side-text {
+            color: var(--theme-text) !important; /* 強制日期文字跟隨主題色 */
+            font-weight: bold !important;
+            text-decoration: none !important;
+        }
 
         .fc-daygrid-day-number, .fc-col-header-cell-cushion {
             text-decoration: none !important;
@@ -70,7 +80,6 @@
         }
 
         .fc-theme-standard td, .fc-theme-standard th { border-color: var(--border-color) !important; }
-
         .fc-event-time { display: none !important; }
 
         .fc-toolbar-title {
@@ -83,8 +92,6 @@
             background-color: var(--card-bg) !important;
             border: 1px solid var(--border-color) !important;
             color: var(--theme-text) !important;
-            font-weight: 600 !important;
-            border-radius: 6px !important;
             font-size: 0.7em !important;
         }
 
@@ -98,9 +105,9 @@
             cursor: pointer !important;
             background-color: var(--theme-primary) !important;
             border: none !important;
-            padding: 2px 4px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 0.75em;
+            font-size: 0.8em;
             color: #000 !important;
         }
 
@@ -118,33 +125,30 @@
             z-index: 2000;
         }
         .modal-overlay.active { display: flex; }
-
-        /* 彈窗內容適配 */
-        .modal-body {
-            background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            color: var(--theme-text);
-        }
+        .modal-body { background-color: var(--card-bg); border: 2px solid var(--border-color); color: var(--theme-text); }
     </style>
 </head>
 <body>
 
-    <header class="h-16 flex items-center justify-between px-4 bg-[var(--card-bg)] shadow-sm border-b border-[var(--border-color)] relative z-10 transition-colors">
+    <header class="h-16 flex items-center justify-between px-4 bg-[var(--card-bg)] shadow-sm border-b border-[var(--border-color)] relative z-10">
         <div class="flex items-center gap-3">
             <h1 class="text-sm md:text-base font-black text-emerald-800 dark:text-emerald-400 whitespace-nowrap">ハコリリ活動行事曆</h1>
             <nav class="flex items-center gap-2 border-l pl-2 border-[var(--border-color)]">
-                <button onclick="toggleDarkMode()" class="text-gray-500 dark:text-yellow-400 p-1 hover:scale-110 transition">
-                    <span id="dark-icon">🌙</span>
-                </button>
                 <a href="https://x.com/kotohatakoyaki" target="_blank" class="text-blue-400 hover:opacity-70 transition">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.444 4.834c-.812.358-1.683.6-2.597.71a4.532 4.532 0 001.988-2.503 9.042 9.042 0 01-2.87 1.096 4.524 4.524 0 00-7.705 4.122 12.83 12.83 0 01-9.317-4.722 4.521 4.521 0 001.4 6.034 4.504 4.504 0 01-2.048-.565v.057a4.522 4.522 0 003.625 4.43 4.528 4.528 0 01-2.04.077 4.526 4.526 0 004.225 3.14A9.073 9.073 0 010 18.39a12.793 12.793 0 006.926 2.03c8.311 0 12.855-6.885 12.855-12.854 0-.196-.004-.39-.013-.585a9.184 9.184 0 002.256-2.333z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@%E3%81%93%E3%81%A8%E3%81%AF%E3%81%AE%E3%81%9F%E3%81%93%E7%84%BC%E3%81%8D/" target="_blank" class="text-red-500 hover:opacity-70 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </a>
             </nav>
         </div>
         
-        <div class="flex items-center gap-2">
-            <button id="toggle-past" onclick="togglePastEvents()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--border-color)] rounded-md text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:opacity-80 transition">
+        <div class="flex items-center gap-1">
+            <button id="toggle-past" onclick="togglePastEvents()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--border-color)] rounded-md text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:opacity-80 transition mr-2">
                 隱藏過去活動
+            </button>
+            <button onclick="toggleDarkMode()" class="text-gray-500 dark:text-yellow-400 p-1 hover:scale-110 transition">
+                <span id="dark-icon">🌙</span>
             </button>
             <button onclick="toggleDrawer()" class="w-8 h-8 flex items-center justify-center text-xl text-gray-300 font-bold">+</button>
         </div>
@@ -170,14 +174,14 @@
     <div id="drawer" class="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--border-color)] p-4 transform translate-y-full transition-transform duration-300 z-[1100]">
         <div class="max-w-md mx-auto">
             <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="text" id="mt" placeholder="標題" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)]">
-                <input type="date" id="ms" class="border p-2 rounded-lg text-sm bg-[var(--theme-bg)] border-[var(--border-color)]">
-                <input type="date" id="me" class="border p-2 rounded-lg text-sm bg-[var(--theme-bg)] border-[var(--border-color)]">
-                <input type="text" id="mi" placeholder="圖片網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)]">
-                <input type="text" id="mu" placeholder="詳情網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)]">
-                <button onclick="genJSON()" class="bg-emerald-500 text-white p-2 rounded-lg font-bold col-span-2">生成</button>
+                <input type="text" id="mt" placeholder="標題" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
+                <input type="date" id="ms" class="border p-2 rounded-lg text-sm bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
+                <input type="date" id="me" class="border p-2 rounded-lg text-sm bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
+                <input type="text" id="mi" placeholder="圖片網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
+                <input type="text" id="mu" placeholder="詳情網址" class="border p-2 rounded-lg text-sm col-span-2 bg-[var(--theme-bg)] border-[var(--border-color)] text-[var(--theme-text)]">
+                <button onclick="genJSON()" class="bg-emerald-500 text-white p-2 rounded-lg font-bold col-span-2">生成 JSON</button>
             </div>
-            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-[var(--theme-bg)] mb-2" readonly></textarea>
+            <textarea id="mo" class="w-full hidden text-[10px] font-mono border p-2 h-20 bg-[var(--theme-bg)] text-[var(--theme-text)]" readonly></textarea>
         </div>
     </div>
 
