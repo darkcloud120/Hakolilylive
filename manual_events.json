@@ -1,5 +1,73 @@
 [
   {
+    "title": "LAWSON presents HoneyWorks Premium Live 2021〜ハニフェス〜 DAY2",
+    "start": "2021-12-28",
+    "description": "LAWSON presents HoneyWorks Premium Live 2021〜ハニフェス〜 DAY2（ハコニワリリィ出演日）",
+    "url": "https://hakoniwalily.jp/news/post-0017/"
+  },
+  {
+    "title": "ハコニワリリィ 1stワンマンライブ『Lily's Garden Party』",
+    "start": "2022-06-25",
+    "description": "ハコニワリリィ 1stワンマンライブ『Lily's Garden Party』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2022/04/8139298b1bdf7b275fed7e0c564e18c8-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0027/"
+  },
+  {
+    "title": "ハコニワリリィ Live Tour ~Lily's Plage~ 愛知・名古屋",
+    "start": "2022-11-18",
+    "description": "ハコニワリリィ Live Tour ~Lily's Plage~ 愛知・名古屋",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2022/08/8ccf16c2621349679f13cb434c01c1f7-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0040/"
+  },
+  {
+    "title": "ハコニワリリィ Live Tour ~Lily's Plage~ 東京・Spotify O-EAST",
+    "start": "2022-11-20",
+    "description": "ハコニワリリィ Live Tour ~Lily's Plage~ 東京・Spotify O-EAST",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2022/08/8ccf16c2621349679f13cb434c01c1f7-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0040/"
+  },
+  {
+    "title": "ハコニワリリィ Live Tour ~Lily's Plage~ 兵庫・神戸",
+    "start": "2022-11-26",
+    "description": "ハコニワリリィ Live Tour ~Lily's Plage~ 兵庫・神戸",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2022/08/8ccf16c2621349679f13cb434c01c1f7-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0040/"
+  },
+  {
+    "title": "ハコリリと遊ぼう！2周年記念ファンミーティング",
+    "start": "2023-09-01",
+    "description": "ハコリリと遊ぼう！2周年記念ファンミーティング",
+    "url": "https://hakoniwalily.jp/news/post-0068/"
+  },
+  {
+    "title": "Kotoha 1stワンマンライブ『プルメリア』",
+    "start": "2024-03-02",
+    "description": "Kotoha 1stワンマンライブ『プルメリア』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2024/01/Plumeria_flyer-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0069/"
+  },
+  {
+    "title": "Hanon 2ndワンマンライブ『アクアマリン』",
+    "start": "2024-03-16",
+    "description": "Hanon 2ndワンマンライブ『アクアマリン』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2024/01/4fd58d0414626ea1de5c59f10b75fe28-656x1024.png",
+    "url": "https://hakoniwalily.jp/news/post-0070/"
+  },
+  {
+    "title": "HoneyWorks Presents ハニフェス ～女子校文化祭 日比谷～",
+    "start": "2024-04-29",
+    "description": "HoneyWorks Presents ハニフェス ～女子校文化祭 日比谷～",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2024/03/de07b5afad927f27f4e281c8f5e8574e-1024x576.png",
+    "url": "https://hakoniwalily.jp/news/post-0073/"
+  },
+  {
+    "title": "HoneyWorks Presents ハニフェス ～女子校文化祭 渋谷～",
+    "start": "2024-06-02",
+    "description": "HoneyWorks Presents ハニフェス ～女子校文化祭 渋谷～",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2024/04/61c38c0800bc1621853659bc0d53bcbe-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-0075/"
+  },
+  {
     "title": "『ハコリリ夏祭り2024』",
     "start": "2024-08-04",
     "description": "『ハコリリ夏祭り2024』",
@@ -12,6 +80,12 @@
     "description": "ハコニワリリィ Live Tour 2025『AquaLilyum 〜アクアリリウム〜』 宮城・仙台",
     "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2024/11/aqualilyum_flyer-1086x1536.jpg",
     "url": "https://hakoniwalily.jp/news/post-0087/"
+  },
+  {
+    "title": "P's LIVE! 08 ～P's GR∞VE～ DAY2",
+    "start": "2025-03-09",
+    "description": "P's LIVE! 08 ～P's GR∞VE～ DAY2（ハコニワリリィ出演）",
+    "url": "https://hakoniwalily.jp/news/20241002_2200/"
   },
   {
     "title": "ハコニワリリィ Live Tour 2025『AquaLilyum 〜アクアリリウム〜』 愛知・名古屋",
@@ -42,6 +116,12 @@
     "url": "https://hakoniwalily.jp/news/post-0087/"
   },
   {
+    "title": "HoneyWorks feat.ハコニワリリィ 1st EVENT「Floral Greeting」",
+    "start": "2025-05-31",
+    "description": "HoneyWorks feat.ハコニワリリィ 1st EVENT「Floral Greeting」（昼の部/夜の部）",
+    "url": "https://hakoniwalily.jp/news/20250330_1700/"
+  },
+  {
     "title": "『ハコリリ夏祭り2025』",
     "start": "2025-07-12",
     "description": "『ハコリリ夏祭り2025』",
@@ -55,6 +135,12 @@
     "description": "HoneyWorks Presents ハニフェス2025 ～女子校文化祭 日比谷～",
     "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2025/06/750f931543ee9b37a19e2aea87ea4acf-1085x1536.jpg",
     "url": "https://hakoniwalily.jp/news/post-0092/"
+  },
+  {
+    "title": "HoneyWorks feat.ハコニワリリィ ANIMAX MUSIX 2025 YOKOHAMA",
+    "start": "2025-11-15",
+    "description": "HoneyWorks feat.ハコニワリリィ ANIMAX MUSIX 2025 YOKOHAMA supported by Lemino",
+    "url": "https://hakoniwalily.jp/news/honeyworks-feat-%e3%83%8f%e3%82%b3%e3%83%8b%e3%83%af%e3%83%aa%e3%83%aa%e3%82%a3%e3%80%812025%e5%b9%b411%e6%9c%8815%e6%97%a5%e5%9c%9f%e3%80%8eanimax-musix-2025-yokohama-supported-by-lemino%e3%80%8f/"
   },
   {
     "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Paris",
@@ -74,27 +160,6 @@
     "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in London",
     "start": "2026-03-01",
     "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in London",
-    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
-    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
-  },
-  {
-    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Dallas",
-    "start": "2026-04-25",
-    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Dallas",
-    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
-    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
-  },
-  {
-    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Los Angeles",
-    "start": "2026-05-01",
-    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Los Angeles",
-    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
-    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
-  },
-  {
-    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in New York",
-    "start": "2026-05-03",
-    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in New York",
     "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
     "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
   },
@@ -148,6 +213,27 @@
     "url": "https://hakoniwalily.jp/news/251220_1715_1stalrealevent/"
   },
   {
+    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Dallas",
+    "start": "2026-04-25",
+    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Dallas",
+    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
+    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
+  },
+  {
+    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Los Angeles",
+    "start": "2026-05-01",
+    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in Los Angeles",
+    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
+    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
+  },
+  {
+    "title": "HoYoFair Fan Concert「Once Upon HoYoFair」 in New York",
+    "start": "2026-05-03",
+    "description": "HoYoFair Fan Concert「Once Upon HoYoFair」 in New York",
+    "image": "https://pbs.twimg.com/media/G6kc_ehbwAY6shi?format=jpg&name=medium",
+    "url": "https://act.hoyoverse.com/puzzle/plat/pz_sHZPgj_iBH/index.html?lang=en-us"
+  },
+  {
     "title": "「ハコリリMEETING」握手会",
     "start": "2026-05-06",
     "description": "「ハコリリMEETING」握手会",
@@ -169,11 +255,25 @@
     "url": "https://hakoniwalily.jp/news/20260416_2000/"
   },
   {
-    "title": " 『Anime Festival Asia Thailand 2026』",
+    "title": "『Anime Festival Asia Thailand 2026』",
     "start": "2026-05-31",
     "description": "『Anime Festival Asia Thailand 2026』",
     "image": "https://pbs.twimg.com/media/HD4RxA2boAIc6pQ?format=jpg&name=large",
     "url": "https://animefestival.asia/afath26/"
+  },
+  {
+    "title": "Kotoha 2ndワンマンライブ『Re:CONNECT』",
+    "start": "2026-06-13",
+    "description": "Kotoha 2ndワンマンライブ『Re:CONNECT』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2026/04/f43b3bb0a3005e7174786652de357ed7-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-103/"
+  },
+  {
+    "title": "Hanon 3rdワンマンライブ『ブルームーン』",
+    "start": "2026-06-28",
+    "description": "Hanon 3rdワンマンライブ『ブルームーン』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2026/04/18b39c6b578b1ae7496466af72a0651d-724x1024.jpg",
+    "url": "https://hakoniwalily.jp/news/post-104/"
   },
   {
     "title": "「Animelo Summer Live 2026 -Messenger-」",
@@ -182,5 +282,12 @@
     "allDay": true,
     "image": "https://pbs.twimg.com/media/HGBqVq6aMAEpYsY?format=jpg&name=4096x4096",
     "url": "https://anisama.tv/2026/"
+  },
+  {
+    "title": "『ハコリリ夏祭り2026』",
+    "start": "2026-08-15",
+    "description": "『ハコリリ夏祭り2026』",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2026/04/86ccdcb723a26b9d32af1d0381941d1c-1024x576.jpg",
+    "url": "https://hakoniwalily.jp/news/post-105/"
   }
 ]
