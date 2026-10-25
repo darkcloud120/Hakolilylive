@@ -313,5 +313,14 @@
     "allDay": true,
     "image": "https://pbs.twimg.com/media/HOWxthIawAA1gW-?format=jpg&name=large",
     "url": "https://www.animax.co.jp/events/animaxmusix/?utm_source=animax&utm_medium=tw&utm_campaign=animaxmusix2607_lp"
-  }
+  },
+    {
+    "title": "HoneyWorks feat.ハコニワリリィ、2nd EVENT「Wonder Greeting」",
+    "start": "2026-11-15",
+    "description": "HoneyWorks feat.ハコニワリリィ、2nd EVENT「Wonder Greeting」",
+    "allDay": true,
+    "end": "2026-11-15",
+    "image": "https://hakoniwalily.jp/cms/wp-content/uploads/2026/09/5123dbcfcf2417faa962573986ec3e00-1085x1536.jpg",
+    "url": "https://hakoniwalily.jp/news/20260815-1615/"
+    }
 ]
